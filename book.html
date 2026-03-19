@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>Bumble Bee Blinds — Book Consultation</title>
+<style>
+  :root {
+    --buttercup: #f0a616;
+    --coffee: #24150e;
+    --gin-fizz: #fff9e5;
+    --chino: #cbc1a0;
+    --success: #4caf50;
+    --error: #e53935;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--gin-fizz);
+    color: var(--coffee);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── Header ── */
+  .header {
+    background: var(--coffee);
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header h1 {
+    color: var(--buttercup);
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .header .bee-icon { height: 36px; width: auto; }
+  .booking-count {
+    background: var(--buttercup);
+    color: var(--coffee);
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 14px;
+  }
+
+  /* ── Admin Bar ── */
+  .admin-bar {
+    background: var(--coffee);
+    padding: 8px 24px 12px;
+    display: none;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .admin-bar.visible { display: flex; }
+  .admin-btn {
+    background: var(--buttercup);
+    color: var(--coffee);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .admin-btn:active { opacity: 0.8; }
+  .admin-btn.danger { background: var(--error); color: #fff; }
+
+  /* ── Container ── */
+  .container {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 16px 24px 20px;
+  }
+
+  /* ── Progress Bar ── */
+  .progress {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin-bottom: 16px;
+  }
+  .step-dot {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--chino);
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700;
+    font-size: 16px;
+    transition: all 0.3s;
+  }
+  .step-dot.active { background: var(--buttercup); color: var(--coffee); transform: scale(1.15); }
+  .step-dot.done { background: var(--success); }
+  .step-line {
+    width: 60px; height: 3px;
+    background: var(--chino);
+    transition: background 0.3s;
+  }
+  .step-line.done { background: var(--success); }
+
+  /* ── Screens ── */
+  .screen { display: none; animation: fadeIn 0.3s ease; }
+  .screen.active { display: flex; flex-direction: column; min-height: calc(100dvh - 92px); }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+  .screen-title {
+    font-size: 34px;
+    font-weight: 800;
+    text-align: center;
+    margin-bottom: 4px;
+  }
+  .screen-sub {
+    text-align: center;
+    color: #7a6e5f;
+    font-size: 20px;
+    margin-bottom: 16px;
+  }
+
+  /* ── Welcome Screen ── */
+  .welcome-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: calc(100dvh - 60px);
+    text-align: center;
+    padding: 20px 24px;
+  }
+  .welcome-logo { max-width: 340px; width: 60%; margin-bottom: 20px; }
+  .welcome-title {
+    font-size: 42px;
+    font-weight: 800;
+    margin-bottom: 8px;
+    color: var(--coffee);
+  }
+  .welcome-sub {
+    font-size: 24px;
+    color: #7a6e5f;
+    margin-bottom: 32px;
+    line-height: 1.4;
+  }
+  .welcome-cta {
+    padding: 24px 80px;
+    font-size: 28px;
+    border-radius: 20px;
+  }
+
+  /* ── Form Fields ── */
+  .field { margin-bottom: 10px; }
+  .field label {
+    display: block;
+    font-weight: 600;
+    font-size: 18px;
+    margin-bottom: 4px;
+    color: var(--coffee);
+  }
+  .field input, .field select {
+    width: 100%;
+    padding: 14px 18px;
+    border: 2px solid var(--chino);
+    border-radius: 14px;
+    font-size: 20px;
+    background: #fff;
+    color: var(--coffee);
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+  }
+  .field input:focus, .field select:focus {
+    outline: none;
+    border-color: var(--buttercup);
+  }
+  .field input.error, .field select.error { border-color: var(--error); }
+  .error-msg {
+    color: var(--error);
+    font-size: 12px;
+    margin-top: 4px;
+    display: none;
+  }
+
+  /* ── Date Picker ── */
+  .date-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+  .day-header {
+    text-align: center;
+    font-weight: 700;
+    font-size: 13px;
+    color: #7a6e5f;
+    padding: 4px 0;
+  }
+  .date-cell {
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: 600;
+    border: 2px solid transparent;
+    transition: all 0.2s;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .date-cell.available {
+    background: #fff;
+    border-color: var(--chino);
+  }
+  .date-cell.available:active { transform: scale(0.95); }
+  .date-cell.selected {
+    background: var(--buttercup);
+    border-color: var(--buttercup);
+    color: var(--coffee);
+  }
+  .date-cell.unavailable {
+    color: #ccc;
+    cursor: not-allowed;
+  }
+  .date-cell.past {
+    color: #ddd;
+    cursor: not-allowed;
+  }
+  .date-cell .date-month {
+    font-size: 9px;
+    font-weight: 400;
+    color: #7a6e5f;
+    margin-top: 1px;
+  }
+  .date-cell.selected .date-month { color: var(--coffee); }
+
+  /* ── Time Slots ── */
+  .time-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+    flex: 1;
+  }
+  .time-slot {
+    background: #fff;
+    border: 2px solid var(--chino);
+    border-radius: 14px;
+    padding: 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    user-select: none;
+    -webkit-user-select: none;
+    font-size: 20px;
+    font-weight: 600;
+  }
+  .time-slot.selected {
+    border-color: var(--buttercup);
+    background: #fef7e0;
+    box-shadow: 0 0 0 2px var(--buttercup);
+  }
+  .time-slot.booked {
+    background: #f5f5f5;
+    color: #bbb;
+    border-color: #eee;
+    cursor: not-allowed;
+    text-decoration: line-through;
+  }
+  .time-slot:active:not(.booked) { transform: scale(0.97); }
+  .time-slot .slot-label {
+    font-size: 12px;
+    color: #7a6e5f;
+    font-weight: 400;
+    margin-top: 2px;
+  }
+  .time-slot.selected .slot-label { color: var(--coffee); }
+
+  /* ── Blocked Dates Section ── */
+  .blocked-section {
+    background: rgba(0,0,0,0.03);
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin-top: 8px;
+  }
+  .blocked-section h3 {
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+  .blocked-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .blocked-tag {
+    background: var(--error);
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .blocked-tag .remove {
+    cursor: pointer;
+    font-size: 14px;
+    opacity: 0.8;
+  }
+
+  /* ── Buttons ── */
+  .btn-primary {
+    width: 100%;
+    padding: 16px;
+    background: var(--buttercup);
+    color: var(--coffee);
+    border: none;
+    border-radius: 16px;
+    font-size: 22px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+  }
+  .btn-primary:active { transform: scale(0.98); opacity: 0.9; }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-secondary {
+    width: 100%;
+    padding: 14px;
+    background: transparent;
+    color: var(--coffee);
+    border: 2px solid var(--chino);
+    border-radius: 16px;
+    font-size: 20px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+
+  /* ── Confirmation ── */
+  .confirm-box {
+    background: #fff;
+    border: 2px solid var(--chino);
+    border-radius: 16px;
+    padding: 24px;
+    margin: 16px 0;
+  }
+  .confirm-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #f0ebe3;
+    font-size: 17px;
+  }
+  .confirm-row:last-child { border-bottom: none; }
+  .confirm-label { color: #7a6e5f; font-weight: 500; }
+  .confirm-value { font-weight: 700; text-align: right; }
+
+  /* ── Thank You ── */
+  .thankyou-bee { width: 100px; margin: 0 auto 12px; display: block; }
+  .thankyou-box {
+    background: var(--coffee);
+    border-radius: 18px;
+    padding: 28px 24px;
+    text-align: center;
+    margin: 16px 0;
+  }
+  .thankyou-label {
+    color: var(--buttercup);
+    font-size: 16px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+  .thankyou-datetime {
+    color: #fff;
+    font-size: 28px;
+    font-weight: 800;
+    margin: 8px 0;
+    line-height: 1.3;
+  }
+  .thankyou-detail {
+    color: var(--chino);
+    font-size: 16px;
+    line-height: 1.5;
+  }
+  .thankyou-text {
+    text-align: center;
+    font-size: 18px;
+    color: #7a6e5f;
+    line-height: 1.5;
+    margin-bottom: 16px;
+  }
+
+  /* ── No slots message ── */
+  .no-slots {
+    text-align: center;
+    padding: 40px 20px;
+    color: #7a6e5f;
+    font-size: 18px;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ── Toast ── */
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--coffee);
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    z-index: 200;
+    transition: transform 0.3s ease;
+    white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ── Responsive: Small ── */
+  @media (max-height: 600px) {
+    .welcome-logo { max-width: 180px; margin-bottom: 10px; }
+    .welcome-title { font-size: 28px; }
+    .welcome-sub { font-size: 16px; margin-bottom: 16px; }
+    .welcome-cta { padding: 14px 50px; font-size: 20px; }
+    .screen-title { font-size: 24px; }
+    .screen-sub { font-size: 14px; margin-bottom: 8px; }
+    .field label { font-size: 14px; }
+    .field input, .field select { padding: 10px 14px; font-size: 16px; }
+    .date-cell { font-size: 14px; }
+    .time-slot { padding: 10px; font-size: 16px; }
+    .btn-primary { padding: 12px; font-size: 18px; }
+    .container { padding: 8px 16px 12px; }
+  }
+
+  /* ── Responsive: Medium ── */
+  @media (min-height: 601px) and (max-height: 850px) {
+    .welcome-logo { max-width: 260px; }
+    .welcome-title { font-size: 34px; }
+    .welcome-sub { font-size: 20px; }
+    .welcome-cta { padding: 18px 60px; font-size: 24px; }
+    .field input, .field select { padding: 12px 16px; font-size: 18px; }
+    .time-slot { padding: 12px; font-size: 18px; }
+  }
+
+  /* ── Responsive: Large ── */
+  @media (min-height: 1100px) {
+    .welcome-logo { max-width: 420px; }
+    .welcome-title { font-size: 52px; }
+    .welcome-sub { font-size: 28px; margin-bottom: 48px; }
+    .welcome-cta { padding: 28px 100px; font-size: 32px; }
+    .screen-title { font-size: 42px; }
+    .screen-sub { font-size: 24px; }
+    .field label { font-size: 22px; }
+    .field input, .field select { padding: 20px 22px; font-size: 24px; }
+    .date-cell { font-size: 22px; }
+    .time-slot { padding: 20px; font-size: 24px; }
+    .btn-primary { padding: 22px; font-size: 26px; }
+    .container { max-width: 800px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div style="display:flex;align-items:center;gap:10px;">
+    <img src="bee-icon.png" class="bee-icon" alt="Bumble Bee Blinds">
+    <h1>BOOK CONSULTATION</h1>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <span class="booking-count" id="bookingCount">0</span>
+    <button onclick="toggleAdmin()" style="background:none;border:none;color:var(--chino);font-size:20px;cursor:pointer;">&#9881;</button>
+  </div>
+</div>
+
+<!-- Admin Bar -->
+<div class="admin-bar" id="adminBar">
+  <button class="admin-btn" onclick="downloadCSV()">&#128229; Download CSV</button>
+  <button class="admin-btn" onclick="showBlockModal()">&#128683; Block Time</button>
+  <button class="admin-btn danger" onclick="confirmClear()">&#128465; Clear All</button>
+</div>
+
+<!-- Main Content -->
+<div class="container">
+
+  <!-- SCREEN 0: Welcome -->
+  <div class="screen active" id="screen-welcome">
+    <div class="welcome-screen">
+      <img src="logo-stacked.png" class="welcome-logo" alt="Bumble Bee Blinds">
+      <div class="welcome-title">Free Consultation</div>
+      <div class="welcome-sub">
+        Book your free in-home<br>window treatment consultation
+      </div>
+      <button class="btn-primary welcome-cta" onclick="startBooking()">Book Now</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 1: Pick a Date -->
+  <div class="screen" id="screen-date">
+    <div class="progress">
+      <div class="step-dot active">1</div>
+      <div class="step-line"></div>
+      <div class="step-dot">2</div>
+      <div class="step-line"></div>
+      <div class="step-dot">3</div>
+      <div class="step-line"></div>
+      <div class="step-dot">4</div>
+    </div>
+
+    <div class="screen-title">Pick a Date</div>
+    <div class="screen-sub">Next 2 weeks available</div>
+
+    <div class="date-grid" id="dateGrid"></div>
+
+    <button class="btn-primary" onclick="goToTime()" id="btnToTime" disabled>Select a Date</button>
+  </div>
+
+  <!-- SCREEN 2: Pick a Time -->
+  <div class="screen" id="screen-time">
+    <div class="progress">
+      <div class="step-dot done">&#10003;</div>
+      <div class="step-line done"></div>
+      <div class="step-dot active">2</div>
+      <div class="step-line"></div>
+      <div class="step-dot">3</div>
+      <div class="step-line"></div>
+      <div class="step-dot">4</div>
+    </div>
+
+    <div class="screen-title" id="timeTitle">Select a Time</div>
+    <div class="screen-sub" id="timeSub"></div>
+
+    <div class="time-grid" id="timeGrid"></div>
+    <div class="no-slots" id="noSlots" style="display:none;">No available slots on this date.<br>Please go back and pick another day.</div>
+
+    <button class="btn-primary" onclick="goToContact()" id="btnToContact" disabled>Next &rarr;</button>
+    <button class="btn-secondary" onclick="showScreen('date')">&#8592; Back</button>
+  </div>
+
+  <!-- SCREEN 3: Contact Info -->
+  <div class="screen" id="screen-contact">
+    <div class="progress">
+      <div class="step-dot done">&#10003;</div>
+      <div class="step-line done"></div>
+      <div class="step-dot done">&#10003;</div>
+      <div class="step-line done"></div>
+      <div class="step-dot active">3</div>
+      <div class="step-line"></div>
+      <div class="step-dot">4</div>
+    </div>
+
+    <div class="screen-title">Your Details</div>
+    <div class="screen-sub">So we can confirm your consultation</div>
+
+    <div class="field">
+      <label for="fname">First Name *</label>
+      <input type="text" id="fname" placeholder="First name" autocomplete="given-name" autocapitalize="words">
+      <div class="error-msg" id="fname-error">Please enter your first name</div>
+    </div>
+    <div class="field">
+      <label for="lname">Last Name *</label>
+      <input type="text" id="lname" placeholder="Last name" autocomplete="family-name" autocapitalize="words">
+      <div class="error-msg" id="lname-error">Please enter your last name</div>
+    </div>
+    <div class="field">
+      <label for="email">Email *</label>
+      <input type="email" id="email" placeholder="you@email.com" autocomplete="email" inputmode="email">
+      <div class="error-msg" id="email-error">Please enter a valid email (e.g. name@email.com)</div>
+    </div>
+    <div class="field">
+      <label for="phone">Phone *</label>
+      <input type="tel" id="phone" placeholder="(813) 555-1234" autocomplete="tel" inputmode="tel">
+      <div class="error-msg" id="phone-error">Please enter a valid 10-digit phone number</div>
+    </div>
+    <div class="field">
+      <label for="address">Full Address *</label>
+      <input type="text" id="address" placeholder="123 Main St, Tampa, FL 33602" autocomplete="street-address">
+      <div class="error-msg" id="address-error">Please enter your full address</div>
+    </div>
+
+    <button class="btn-primary" onclick="goToConfirm()">Review Booking &rarr;</button>
+    <button class="btn-secondary" onclick="showScreen('time')">&#8592; Back</button>
+  </div>
+
+  <!-- SCREEN 4: Confirm -->
+  <div class="screen" id="screen-confirm">
+    <div class="progress">
+      <div class="step-dot done">&#10003;</div>
+      <div class="step-line done"></div>
+      <div class="step-dot done">&#10003;</div>
+      <div class="step-line done"></div>
+      <div class="step-dot done">&#10003;</div>
+      <div class="step-line done"></div>
+      <div class="step-dot active">4</div>
+    </div>
+
+    <div class="screen-title">Confirm Booking</div>
+    <div class="screen-sub">Please review your details</div>
+
+    <div class="confirm-box" id="confirmDetails"></div>
+
+    <button class="btn-primary" onclick="submitBooking()">Confirm Booking</button>
+    <button class="btn-secondary" onclick="showScreen('contact')">&#8592; Back</button>
+  </div>
+
+  <!-- SCREEN 5: Thank You -->
+  <div class="screen" id="screen-thanks">
+    <div class="progress">
+      <div class="step-dot done">&#10003;</div>
+      <div class="step-line done"></div>
+      <div class="step-dot done">&#10003;</div>
+      <div class="step-line done"></div>
+      <div class="step-dot done">&#10003;</div>
+      <div class="step-line done"></div>
+      <div class="step-dot done">&#10003;</div>
+    </div>
+
+    <img src="bee-icon.png" class="thankyou-bee" alt="">
+    <div class="screen-title">You're Booked!</div>
+
+    <div class="thankyou-box">
+      <div class="thankyou-label">Your Consultation</div>
+      <div class="thankyou-datetime" id="thanksDateTime"></div>
+      <div class="thankyou-detail">3-hour in-home consultation<br>with a design expert</div>
+    </div>
+
+    <div class="thankyou-text">
+      We'll send a confirmation to your email.<br>
+      See you soon!
+    </div>
+
+    <button class="btn-primary" onclick="resetForm()">Next Guest &rarr;</button>
+  </div>
+
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Block Time Modal -->
+<div style="position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:300;display:none;align-items:center;justify-content:center;" id="blockModal">
+  <div style="background:#fff;border-radius:18px;padding:32px 24px;width:90%;max-width:500px;max-height:80vh;overflow-y:auto;">
+    <h2 style="font-size:20px;margin-bottom:16px;">Block Date/Time</h2>
+    <p style="font-size:14px;color:#7a6e5f;margin-bottom:16px;">Block a date or specific time slot so customers can't book it.</p>
+    <div class="field">
+      <label>Date</label>
+      <input type="date" id="blockDate">
+    </div>
+    <div class="field">
+      <label>Time (leave blank to block whole day)</label>
+      <select id="blockTime">
+        <option value="">-- Block entire day --</option>
+        <option value="09:00">9:00 AM - 12:00 PM</option>
+        <option value="12:00">12:00 PM - 3:00 PM</option>
+        <option value="15:00">3:00 PM - 6:00 PM</option>
+        <option value="18:00">6:00 PM - 9:00 PM</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:12px;">
+      <button onclick="closeBlockModal()" style="flex:1;padding:12px;border-radius:10px;font-size:15px;font-weight:600;background:#eee;border:none;cursor:pointer;">Cancel</button>
+      <button onclick="addBlock()" style="flex:1;padding:12px;border-radius:10px;font-size:15px;font-weight:600;background:var(--buttercup);border:none;cursor:pointer;">Block</button>
+    </div>
+    <div id="blockedList" style="margin-top:16px;"></div>
+  </div>
+</div>
+
+<script>
+// ── Config ──
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxuYFnHUYUpzj_E7C-qXmGKm_zJv0fhWjUsYaoQj4SEgusi2WSyt-sH5ZSPoB_P3QTQuA/exec';
+const START_HOUR = 9;
+const END_HOUR = 21; // last slot 6 PM ends at 9 PM
+const SLOT_DURATION = 3; // hours
+const DAYS_AHEAD = 14;
+
+// ── State ──
+let bookings = JSON.parse(localStorage.getItem('bbb_bookings') || '[]');
+let cloudBookings = [];
+let blockedSlots = JSON.parse(localStorage.getItem('bbb_blocked') || '[]');
+let selectedDate = null;
+let selectedTime = null;
+let currentBooking = {};
+
+updateBookingCount();
+loadCloudBookings();
+
+// ── Generate available time slots for a day ──
+function getTimeSlots() {
+  const slots = [];
+  for (let h = START_HOUR; h + SLOT_DURATION <= END_HOUR; h += SLOT_DURATION) {
+    slots.push(h.toString().padStart(2, '0') + ':00');
+  }
+  return slots;
+}
+
+// ── Format helpers ──
+function formatDate(dateStr) {
+  const d = new Date(dateStr + 'T12:00:00');
+  return d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+}
+
+function formatTime(timeStr) {
+  const h = parseInt(timeStr.split(':')[0]);
+  const endH = h + SLOT_DURATION;
+  const fmt = (hr) => {
+    const ampm = hr >= 12 ? 'PM' : 'AM';
+    const h12 = hr > 12 ? hr - 12 : hr;
+    return h12 + ' ' + ampm;
+  };
+  return fmt(h) + ' - ' + fmt(endH);
+}
+
+function formatDateShort(dateStr) {
+  const d = new Date(dateStr + 'T12:00:00');
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+// ── Navigation ──
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function startBooking() {
+  buildDateGrid();
+  selectedDate = null;
+  selectedTime = null;
+  showScreen('date');
+}
+
+// ── Date Grid ──
+function buildDateGrid() {
+  const grid = document.getElementById('dateGrid');
+  grid.innerHTML = '';
+
+  const dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  dayHeaders.forEach(d => {
+    const el = document.createElement('div');
+    el.className = 'day-header';
+    el.textContent = d;
+    grid.appendChild(el);
+  });
+
+  const today = new Date();
+  today.setHours(0,0,0,0);
+
+  // Start from tomorrow
+  const start = new Date(today);
+  start.setDate(start.getDate() + 1);
+
+  const end = new Date(today);
+  end.setDate(end.getDate() + DAYS_AHEAD);
+
+  // Fill empty cells before first day
+  const firstDow = start.getDay();
+  for (let i = 0; i < firstDow; i++) {
+    const empty = document.createElement('div');
+    empty.className = 'date-cell';
+    grid.appendChild(empty);
+  }
+
+  // Fill dates
+  const current = new Date(start);
+  while (current <= end) {
+    const dateStr = current.toISOString().slice(0, 10);
+    const dayNum = current.getDate();
+    const monthStr = current.toLocaleDateString('en-US', { month: 'short' });
+
+    const cell = document.createElement('div');
+    const isFullyBlocked = isDateBlocked(dateStr);
+    const availableSlots = getAvailableSlotsForDate(dateStr);
+
+    if (isFullyBlocked || availableSlots.length === 0) {
+      cell.className = 'date-cell unavailable';
+    } else {
+      cell.className = 'date-cell available';
+      cell.onclick = () => selectDate(dateStr, cell);
+    }
+
+    cell.innerHTML = dayNum + '<span class="date-month">' + monthStr + '</span>';
+    cell.dataset.date = dateStr;
+    grid.appendChild(cell);
+
+    current.setDate(current.getDate() + 1);
+  }
+}
+
+function isDateBlocked(dateStr) {
+  return blockedSlots.some(b => b.date === dateStr && !b.time);
+}
+
+function isSlotBlocked(dateStr, timeStr) {
+  return blockedSlots.some(b => b.date === dateStr && (b.time === timeStr || !b.time));
+}
+
+function isSlotBooked(dateStr, timeStr) {
+  return bookings.some(b => b.date === dateStr && b.time === timeStr) ||
+         cloudBookings.some(b => b.date === dateStr && b.time === timeStr);
+}
+
+function loadCloudBookings() {
+  if (!SHEETS_URL || SHEETS_URL === 'BOOKING_SHEETS_URL_HERE') return;
+  fetch(SHEETS_URL + '?action=list')
+    .then(r => r.json())
+    .then(data => {
+      if (Array.isArray(data)) {
+        cloudBookings = data;
+        updateBookingCount();
+      }
+    })
+    .catch(() => {});
+}
+
+function getAvailableSlotsForDate(dateStr) {
+  return getTimeSlots().filter(t => !isSlotBlocked(dateStr, t) && !isSlotBooked(dateStr, t));
+}
+
+function selectDate(dateStr, cell) {
+  document.querySelectorAll('.date-cell').forEach(c => c.classList.remove('selected'));
+  cell.classList.add('selected');
+  selectedDate = dateStr;
+  document.getElementById('btnToTime').disabled = false;
+  document.getElementById('btnToTime').textContent = formatDate(dateStr) + ' →';
+}
+
+// ── Time Slots ──
+function goToTime() {
+  if (!selectedDate) return;
+
+  document.getElementById('timeSub').textContent = formatDate(selectedDate);
+  const grid = document.getElementById('timeGrid');
+  const noSlots = document.getElementById('noSlots');
+  grid.innerHTML = '';
+  selectedTime = null;
+  document.getElementById('btnToContact').disabled = true;
+
+  const slots = getTimeSlots();
+  const available = getAvailableSlotsForDate(selectedDate);
+
+  if (available.length === 0) {
+    grid.style.display = 'none';
+    noSlots.style.display = 'flex';
+  } else {
+    grid.style.display = 'grid';
+    noSlots.style.display = 'none';
+
+    slots.forEach(time => {
+      const booked = isSlotBooked(selectedDate, time);
+      const blocked = isSlotBlocked(selectedDate, time);
+
+      const slot = document.createElement('div');
+      slot.className = 'time-slot' + (booked || blocked ? ' booked' : '');
+      slot.innerHTML = formatTime(time) + (booked ? '<div class="slot-label">Booked</div>' : blocked ? '<div class="slot-label">Unavailable</div>' : '<div class="slot-label">Available</div>');
+
+      if (!booked && !blocked) {
+        slot.onclick = () => selectTime(time, slot);
+      }
+
+      grid.appendChild(slot);
+    });
+  }
+
+  showScreen('time');
+}
+
+function selectTime(time, slot) {
+  document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
+  slot.classList.add('selected');
+  selectedTime = time;
+  document.getElementById('btnToContact').disabled = false;
+}
+
+// ── Contact ──
+function goToContact() {
+  if (!selectedTime) return;
+  showScreen('contact');
+  document.getElementById('fname').focus();
+}
+
+// ── Validation ──
+function isValidEmail(email) {
+  return /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/.test(email);
+}
+
+function isValidPhone(phone) {
+  return phone.replace(/\D/g, '').length === 10;
+}
+
+function showError(field) {
+  document.getElementById(field).classList.add('error');
+  document.getElementById(field + '-error').style.display = 'block';
+}
+function clearError(field) {
+  document.getElementById(field).classList.remove('error');
+  document.getElementById(field + '-error').style.display = 'none';
+}
+
+function goToConfirm() {
+  const fname = document.getElementById('fname');
+  const lname = document.getElementById('lname');
+  const email = document.getElementById('email');
+  const phone = document.getElementById('phone');
+  const address = document.getElementById('address');
+  let valid = true;
+
+  if (!fname.value.trim()) { showError('fname'); valid = false; } else { clearError('fname'); }
+  if (!lname.value.trim()) { showError('lname'); valid = false; } else { clearError('lname'); }
+  if (!isValidEmail(email.value.trim())) { showError('email'); valid = false; } else { clearError('email'); }
+  if (!isValidPhone(phone.value)) { showError('phone'); valid = false; } else { clearError('phone'); }
+  if (!address.value.trim() || address.value.trim().length < 10) { showError('address'); valid = false; } else { clearError('address'); }
+
+  if (!valid) return;
+
+  currentBooking = {
+    fname: fname.value.trim(),
+    lname: lname.value.trim(),
+    email: email.value.trim(),
+    phone: phone.value.trim(),
+    address: address.value.trim(),
+    date: selectedDate,
+    time: selectedTime
+  };
+
+  // Build confirmation
+  const details = document.getElementById('confirmDetails');
+  details.innerHTML = `
+    <div class="confirm-row"><span class="confirm-label">Date</span><span class="confirm-value">${formatDate(selectedDate)}</span></div>
+    <div class="confirm-row"><span class="confirm-label">Time</span><span class="confirm-value">${formatTime(selectedTime)}</span></div>
+    <div class="confirm-row"><span class="confirm-label">Name</span><span class="confirm-value">${currentBooking.fname} ${currentBooking.lname}</span></div>
+    <div class="confirm-row"><span class="confirm-label">Email</span><span class="confirm-value">${currentBooking.email}</span></div>
+    <div class="confirm-row"><span class="confirm-label">Phone</span><span class="confirm-value">${currentBooking.phone}</span></div>
+    <div class="confirm-row"><span class="confirm-label">Address</span><span class="confirm-value">${currentBooking.address}</span></div>
+    <div class="confirm-row"><span class="confirm-label">Duration</span><span class="confirm-value">3 hours</span></div>
+  `;
+
+  showScreen('confirm');
+}
+
+// ── Submit ──
+function submitBooking() {
+  const booking = {
+    ...currentBooking,
+    timestamp: new Date().toISOString()
+  };
+
+  bookings.push(booking);
+  localStorage.setItem('bbb_bookings', JSON.stringify(bookings));
+  updateBookingCount();
+
+  // Thank you screen
+  document.getElementById('thanksDateTime').innerHTML = formatDate(selectedDate) + '<br>' + formatTime(selectedTime);
+
+  // Sync to Google Sheets
+  if (SHEETS_URL && SHEETS_URL !== 'BOOKING_SHEETS_URL_HERE') {
+    const params = new URLSearchParams({
+      timestamp: booking.timestamp,
+      date: booking.date,
+      time: formatTime(booking.time),
+      fname: booking.fname,
+      lname: booking.lname,
+      email: booking.email,
+      phone: booking.phone,
+      address: booking.address,
+      duration: '3 hours'
+    });
+    fetch(SHEETS_URL + '?' + params.toString(), { mode: 'no-cors' }).then(() => {
+      setTimeout(loadCloudBookings, 2000);
+    }).catch(() => {});
+  }
+
+  showScreen('thanks');
+}
+
+// ── Reset ──
+function resetForm() {
+  document.getElementById('fname').value = '';
+  document.getElementById('lname').value = '';
+  document.getElementById('email').value = '';
+  document.getElementById('phone').value = '';
+  document.getElementById('address').value = '';
+  ['fname','lname','email','phone','address'].forEach(clearError);
+  selectedDate = null;
+  selectedTime = null;
+  currentBooking = {};
+  showScreen('welcome');
+}
+
+// ── Admin ──
+function toggleAdmin() {
+  document.getElementById('adminBar').classList.toggle('visible');
+}
+
+function updateBookingCount() {
+  // Deduplicate by date+time across local and cloud
+  const all = new Set();
+  bookings.forEach(b => all.add(b.date + '|' + b.time));
+  cloudBookings.forEach(b => all.add(b.date + '|' + b.time));
+  document.getElementById('bookingCount').textContent = all.size;
+}
+
+function downloadCSV() {
+  if (bookings.length === 0) { toast('No bookings to export'); return; }
+  const headers = ['Timestamp', 'Date', 'Time', 'First Name', 'Last Name', 'Email', 'Phone', 'Address'];
+  const rows = bookings.map(b => [b.timestamp, b.date, formatTime(b.time), b.fname, b.lname, b.email, b.phone, b.address]);
+  let csv = headers.join(',') + '\n';
+  rows.forEach(row => { csv += row.map(c => '"' + (c || '').replace(/"/g, '""') + '"').join(',') + '\n'; });
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'bumble-bee-bookings-' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  toast('CSV downloaded!');
+}
+
+function confirmClear() {
+  if (confirm('Delete ALL ' + bookings.length + ' bookings? This cannot be undone.')) {
+    bookings = [];
+    localStorage.setItem('bbb_bookings', '[]');
+    updateBookingCount();
+    toast('All bookings cleared');
+  }
+}
+
+// ── Block Time ──
+function showBlockModal() {
+  document.getElementById('blockModal').style.display = 'flex';
+  renderBlockedList();
+}
+function closeBlockModal() {
+  document.getElementById('blockModal').style.display = 'none';
+}
+
+function addBlock() {
+  const date = document.getElementById('blockDate').value;
+  const time = document.getElementById('blockTime').value;
+  if (!date) { toast('Select a date to block'); return; }
+
+  const exists = blockedSlots.some(b => b.date === date && b.time === (time || null));
+  if (exists) { toast('Already blocked'); return; }
+
+  blockedSlots.push({ date, time: time || null });
+  localStorage.setItem('bbb_blocked', JSON.stringify(blockedSlots));
+  renderBlockedList();
+  toast('Blocked: ' + formatDateShort(date) + (time ? ' ' + formatTime(time) : ' (all day)'));
+}
+
+function removeBlock(index) {
+  blockedSlots.splice(index, 1);
+  localStorage.setItem('bbb_blocked', JSON.stringify(blockedSlots));
+  renderBlockedList();
+  toast('Block removed');
+}
+
+function renderBlockedList() {
+  const container = document.getElementById('blockedList');
+  if (blockedSlots.length === 0) {
+    container.innerHTML = '<p style="font-size:13px;color:#7a6e5f;">No blocked dates.</p>';
+    return;
+  }
+  container.innerHTML = '<div style="display:flex;flex-wrap:wrap;gap:6px;">' +
+    blockedSlots.map((b, i) =>
+      '<span class="blocked-tag">' + formatDateShort(b.date) + (b.time ? ' ' + formatTime(b.time) : ' All Day') +
+      ' <span class="remove" onclick="removeBlock(' + i + ')">✕</span></span>'
+    ).join('') + '</div>';
+}
+
+// ── Phone Formatting ──
+document.getElementById('phone').addEventListener('input', function(e) {
+  let val = e.target.value.replace(/\D/g, '');
+  if (val.length > 0) {
+    if (val.length <= 3) val = '(' + val;
+    else if (val.length <= 6) val = '(' + val.slice(0,3) + ') ' + val.slice(3);
+    else val = '(' + val.slice(0,3) + ') ' + val.slice(3,6) + '-' + val.slice(6,10);
+  }
+  e.target.value = val;
+});
+
+// ── Toast ──
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ── Prevent zoom ──
+document.addEventListener('dblclick', e => e.preventDefault());
+</script>
+
+</body>
+</html>
