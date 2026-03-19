@@ -660,7 +660,7 @@
 let leads = JSON.parse(localStorage.getItem('bbb_leads') || '[]');
 let selectedProducts = new Set();
 let promoCode = localStorage.getItem('bbb_promo') || 'BB185';
-let sheetsUrl = localStorage.getItem('bbb_sheets_url') || '';
+let sheetsUrl = localStorage.getItem('bbb_sheets_url') || 'https://script.google.com/macros/s/AKfycbxFrtoaEuh0gCudYE6Gq5iq9bFCEBgjcHkzNCzU5ThSn2G9BhEVFYtsa1Qf3FAZ199_/exec';
 let currentLead = {};
 
 updateLeadCount();
@@ -797,7 +797,7 @@ function toggleAdmin() {
 
 function updateLeadCount() {
   const count = leads.length;
-  document.getElementById('leadCount').textContent = count + ' lead' + (count !== 1 ? 's' : '');
+  document.getElementById('leadCount').textContent = count;
 }
 
 function downloadCSV() {
