@@ -866,38 +866,31 @@ function saveSheetsUrl() {
 }
 
 function syncToSheets(lead) {
-  fetch(sheetsUrl, {
-    method: 'POST',
-    mode: 'no-cors',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      timestamp: lead.timestamp,
-      fname: lead.fname,
-      lname: lead.lname,
-      email: lead.email,
-      phone: lead.phone,
-      address: lead.address || '',
-      products: lead.products,
-      promo: lead.promo
-    })
-  }).catch(() => {
-    // Silently fail — data is still in localStorage
+  const params = new URLSearchParams({
+    timestamp: lead.timestamp,
+    fname: lead.fname,
+    lname: lead.lname,
+    email: lead.email,
+    phone: lead.phone,
+    address: lead.address || '',
+    products: lead.products,
+    promo: lead.promo
   });
+  fetch(sheetsUrl + '?' + params.toString(), { mode: 'no-cors' }).catch(() => {});
 }
 
 function copyAppsScript() {
-  const script = `function doPost(e) {
+  const script = `function doGet(e) {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-  var data = JSON.parse(e.postData.contents);
   sheet.appendRow([
-    data.timestamp,
-    data.fname,
-    data.lname,
-    data.email,
-    data.phone,
-    data.address,
-    data.products,
-    data.promo
+    e.parameter.timestamp,
+    e.parameter.fname,
+    e.parameter.lname,
+    e.parameter.email,
+    e.parameter.phone,
+    e.parameter.address,
+    e.parameter.products,
+    e.parameter.promo
   ]);
   return ContentService.createTextOutput('OK');
 }`;
