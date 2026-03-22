@@ -636,27 +636,28 @@
     <div class="screen-title">What's Your Timeline?</div>
     <div class="screen-sub">When are you looking to get started?</div>
 
-    <div class="product-grid" id="timelineGrid">
-      <div class="product-card" onclick="selectTimeline(this)" data-timeline="ASAP">
+    <div class="product-grid" id="timelineGrid" style="grid-template-columns: 1fr 1fr;">
+      <div class="product-card" onclick="selectTimeline(this)" data-timeline="Right Away">
         <div class="product-icon"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="24" cy="24" r="18"/><polyline points="24,12 24,24 32,28"/></svg></div>
         <div class="product-name">Right Away</div>
-        <div class="product-desc">Ready to go now</div>
       </div>
       <div class="product-card" onclick="selectTimeline(this)" data-timeline="Within 1 Month">
         <div class="product-icon"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="8" y="8" width="32" height="32" rx="3"/><line x1="8" y1="16" x2="40" y2="16"/><line x1="16" y1="8" x2="16" y2="12"/><line x1="32" y1="8" x2="32" y2="12"/><circle cx="20" cy="26" r="3" fill="currentColor" stroke="none"/></svg></div>
         <div class="product-name">Within 1 Month</div>
-        <div class="product-desc">Soon but not urgent</div>
       </div>
       <div class="product-card" onclick="selectTimeline(this)" data-timeline="1-3 Months">
         <div class="product-icon"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="8" y="8" width="32" height="32" rx="3"/><line x1="8" y1="16" x2="40" y2="16"/><line x1="16" y1="8" x2="16" y2="12"/><line x1="32" y1="8" x2="32" y2="12"/><circle cx="28" cy="30" r="3" fill="currentColor" stroke="none"/></svg></div>
         <div class="product-name">1 - 3 Months</div>
-        <div class="product-desc">Planning ahead</div>
       </div>
-      <div class="product-card" onclick="selectTimeline(this)" data-timeline="Just Browsing">
-        <div class="product-icon"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="22" cy="22" r="14"/><line x1="32" y1="32" x2="42" y2="42"/></svg></div>
-        <div class="product-name">Just Browsing</div>
-        <div class="product-desc">Gathering ideas</div>
+      <div class="product-card" onclick="selectTimeline(this, true)" data-timeline="Other">
+        <div class="product-icon"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M8 36 L24 12 L40 36 Z"/><line x1="24" y1="22" x2="24" y2="28"/><circle cx="24" cy="32" r="1.5" fill="currentColor"/></svg></div>
+        <div class="product-name">Other</div>
       </div>
+    </div>
+
+    <div class="field" id="otherTimelineField" style="display:none;">
+      <label for="otherTimeline">Tell us your timeline</label>
+      <input type="text" id="otherTimeline" placeholder="e.g. After renovation, Summer 2026...">
     </div>
 
     <button class="btn-primary" onclick="submitLead()" id="btnSubmitLead" disabled>Submit &rarr;</button>
@@ -819,11 +820,25 @@ function goToTimeline() {
   showScreen('timeline');
 }
 
-function selectTimeline(card) {
+function selectTimeline(card, isOther) {
   document.querySelectorAll('#timelineGrid .product-card').forEach(c => c.classList.remove('selected'));
   card.classList.add('selected');
-  selectedTimeline = card.dataset.timeline;
-  document.getElementById('btnSubmitLead').disabled = false;
+  const otherField = document.getElementById('otherTimelineField');
+  if (isOther) {
+    otherField.style.display = 'block';
+    document.getElementById('otherTimeline').focus();
+    selectedTimeline = '';
+    document.getElementById('btnSubmitLead').disabled = true;
+    document.getElementById('otherTimeline').oninput = function() {
+      selectedTimeline = this.value.trim() ? 'Other: ' + this.value.trim() : '';
+      document.getElementById('btnSubmitLead').disabled = !this.value.trim();
+    };
+  } else {
+    otherField.style.display = 'none';
+    document.getElementById('otherTimeline').value = '';
+    selectedTimeline = card.dataset.timeline;
+    document.getElementById('btnSubmitLead').disabled = false;
+  }
 }
 
 // ── Submit ──
@@ -866,6 +881,8 @@ function resetForm() {
   ['fname','lname','email','phone'].forEach(clearError);
   selectedProducts.clear();
   selectedTimeline = '';
+  document.getElementById('otherTimeline').value = '';
+  document.getElementById('otherTimelineField').style.display = 'none';
   document.querySelectorAll('.product-card').forEach(c => c.classList.remove('selected'));
   currentLead = {};
   showScreen('welcome');
