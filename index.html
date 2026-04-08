@@ -154,7 +154,7 @@
     margin-bottom: 4px;
     color: var(--coffee);
   }
-  .field input {
+  .field input, .field select {
     width: 100%;
     padding: 14px 18px;
     border: 2px solid var(--chino);
@@ -164,14 +164,42 @@
     color: var(--coffee);
     transition: border-color 0.2s;
     -webkit-appearance: none;
+    font-family: inherit;
   }
-  .field input:focus {
+  .field input:focus, .field select:focus {
     outline: none;
     border-color: var(--buttercup);
   }
-  .field input.error {
+  .field input.error, .field select.error {
     border-color: var(--error);
   }
+
+  /* ── Address Type Toggle ── */
+  .addr-toggle {
+    display: flex;
+    gap: 0;
+    margin-bottom: 8px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 2px solid var(--chino);
+  }
+  .addr-toggle button {
+    flex: 1;
+    padding: 10px 8px;
+    border: none;
+    background: #fff;
+    color: var(--coffee);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+  .addr-toggle button.active {
+    background: var(--buttercup);
+    color: var(--coffee);
+  }
+  .addr-toggle button:active { opacity: 0.8; }
   .error-msg {
     color: var(--error);
     font-size: 12px;
@@ -531,9 +559,13 @@
       <div class="error-msg" id="phone-error">Please enter a valid 10-digit phone number</div>
     </div>
     <div class="field">
-      <label for="address">Address / Zip Code</label>
-      <input type="text" id="address" placeholder="Street address or zip code" autocomplete="street-address">
-      <div class="error-msg" id="address-error">Please enter a valid address or 5-digit zip code</div>
+      <label>Location</label>
+      <div class="addr-toggle" id="addrToggle">
+        <button class="active" onclick="setAddrMode('zip')">Zip Code</button>
+        <button onclick="setAddrMode('full')">Full Address</button>
+      </div>
+      <input type="text" id="address" placeholder="33602" autocomplete="postal-code" inputmode="numeric" maxlength="5">
+      <div class="error-msg" id="address-error">Please enter a valid 5-digit zip code</div>
     </div>
 
     <button class="btn-primary" onclick="goToProducts()">Next &rarr;</button>
@@ -709,7 +741,7 @@
       To sync leads live to Google Sheets, you need a Google Apps Script web app URL.
       <br><br>
       <strong>Quick setup:</strong><br>
-      1. Create a Google Sheet with headers: Timestamp, First Name, Last Name, Email, Phone, Address, Products, Promo Code<br>
+      1. Create a Google Sheet with headers: Timestamp, First Name, Last Name, Email, Phone, Address, Products, Timeline, Promo Code<br>
       2. Go to Extensions &rarr; Apps Script<br>
       3. Paste the script (tap "Copy Script" below)<br>
       4. Deploy &rarr; New Deployment &rarr; Web App &rarr; Anyone can access<br>
@@ -755,11 +787,52 @@ function isValidPhone(phone) {
   return digits.length === 10;
 }
 
-function isValidZip(address) {
-  if (!address) return true; // optional field
-  // Accept a 5-digit zip anywhere in the string, or a full address
-  return /\d{5}/.test(address) || address.length >= 5;
+// ── Address Mode ──
+let addrMode = 'zip';
+
+function setAddrMode(mode) {
+  addrMode = mode;
+  const input = document.getElementById('address');
+  const toggle = document.getElementById('addrToggle');
+  toggle.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+  toggle.querySelector('button:' + (mode === 'zip' ? 'first-child' : 'last-child')).classList.add('active');
+
+  if (mode === 'zip') {
+    input.placeholder = '33602';
+    input.autocomplete = 'postal-code';
+    input.inputMode = 'numeric';
+    input.maxLength = 5;
+    document.getElementById('address-error').textContent = 'Please enter a valid 5-digit zip code';
+    // If they had a full address, keep just the zip if present
+    const match = input.value.match(/\d{5}/);
+    if (match && input.value.length > 5) input.value = match[0];
+  } else {
+    input.placeholder = '123 Main St, Tampa, FL 33602';
+    input.autocomplete = 'street-address';
+    input.inputMode = 'text';
+    input.maxLength = 200;
+    document.getElementById('address-error').textContent = 'Please enter a full address (street, city, state, zip)';
+  }
+  clearError('address');
+  input.focus();
 }
+
+function isValidAddress(value) {
+  if (!value) return true; // optional field
+  if (addrMode === 'zip') {
+    return /^\d{5}$/.test(value);
+  } else {
+    // Full address: must have some text + a 5-digit zip, at least 10 chars
+    return value.length >= 10 && /\d{5}/.test(value);
+  }
+}
+
+// Auto-format zip: only allow digits, max 5
+document.getElementById('address').addEventListener('input', function(e) {
+  if (addrMode === 'zip') {
+    e.target.value = e.target.value.replace(/\D/g, '').slice(0, 5);
+  }
+});
 
 function goToProducts() {
   // Validate
@@ -774,7 +847,7 @@ function goToProducts() {
   if (!lname.value.trim()) { showError('lname'); valid = false; } else { clearError('lname'); }
   if (!isValidEmail(email.value.trim())) { showError('email'); valid = false; } else { clearError('email'); }
   if (!isValidPhone(phone.value)) { showError('phone'); valid = false; } else { clearError('phone'); }
-  if (!isValidZip(address.value.trim())) { showError('address'); valid = false; } else { clearError('address'); }
+  if (!isValidAddress(address.value.trim())) { showError('address'); valid = false; } else { clearError('address'); }
 
   if (!valid) return;
 
@@ -878,7 +951,8 @@ function resetForm() {
   document.getElementById('email').value = '';
   document.getElementById('phone').value = '';
   document.getElementById('address').value = '';
-  ['fname','lname','email','phone'].forEach(clearError);
+  setAddrMode('zip');
+  ['fname','lname','email','phone','address'].forEach(clearError);
   selectedProducts.clear();
   selectedTimeline = '';
   document.getElementById('otherTimeline').value = '';
@@ -1000,6 +1074,7 @@ function copyAppsScript() {
     e.parameter.phone,
     e.parameter.address,
     e.parameter.products,
+    e.parameter.timeline,
     e.parameter.promo
   ]);
   return ContentService.createTextOutput('OK');

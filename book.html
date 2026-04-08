@@ -75,6 +75,64 @@
   }
   .admin-btn:active { opacity: 0.8; }
   .admin-btn.danger { background: var(--error); color: #fff; }
+  .admin-status {
+    color: var(--buttercup);
+    font-size: 13px;
+    width: 100%;
+    margin-top: 4px;
+  }
+
+  /* ── Sync Indicator ── */
+  .sync-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--success);
+    display: inline-block;
+    margin-right: 4px;
+    transition: background 0.3s;
+  }
+  .sync-dot.syncing { background: var(--buttercup); animation: pulse 0.8s infinite; }
+  .sync-dot.offline { background: var(--error); }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+  .sync-status {
+    font-size: 11px;
+    color: var(--chino);
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+  .offline-badge {
+    background: var(--error);
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 700;
+    display: none;
+  }
+  .offline-badge.visible { display: inline-block; }
+
+  /* ── Booking List Modal ── */
+  .booking-list-item {
+    padding: 12px 0;
+    border-bottom: 1px solid #f0ebe3;
+    font-size: 14px;
+  }
+  .booking-list-item:last-child { border-bottom: none; }
+  .booking-list-item .bl-date {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--coffee);
+  }
+  .booking-list-item .bl-name {
+    font-weight: 600;
+    color: var(--coffee);
+  }
+  .booking-list-item .bl-detail {
+    color: #7a6e5f;
+    font-size: 13px;
+    margin-top: 2px;
+  }
 
   /* ── Container ── */
   .container {
@@ -92,21 +150,23 @@
     margin-bottom: 16px;
   }
   .step-dot {
-    width: 36px; height: 36px;
+    width: 32px; height: 32px;
     border-radius: 50%;
     background: var(--chino);
     color: #fff;
     display: flex; align-items: center; justify-content: center;
     font-weight: 700;
-    font-size: 16px;
+    font-size: 14px;
     transition: all 0.3s;
+    flex-shrink: 0;
   }
   .step-dot.active { background: var(--buttercup); color: var(--coffee); transform: scale(1.15); }
   .step-dot.done { background: var(--success); }
   .step-line {
-    width: 60px; height: 3px;
+    width: 36px; height: 3px;
     background: var(--chino);
     transition: background 0.3s;
+    flex-shrink: 0;
   }
   .step-line.done { background: var(--success); }
 
@@ -166,7 +226,7 @@
     margin-bottom: 4px;
     color: var(--coffee);
   }
-  .field input, .field select {
+  .field input, .field select, .field textarea {
     width: 100%;
     padding: 14px 18px;
     border: 2px solid var(--chino);
@@ -176,12 +236,19 @@
     color: var(--coffee);
     transition: border-color 0.2s;
     -webkit-appearance: none;
+    font-family: inherit;
   }
-  .field input:focus, .field select:focus {
+  .field input:focus, .field select:focus, .field textarea:focus {
     outline: none;
     border-color: var(--buttercup);
   }
-  .field input.error, .field select.error { border-color: var(--error); }
+  .field input.error, .field select.error, .field textarea.error { border-color: var(--error); }
+  .field textarea {
+    resize: vertical;
+    min-height: 80px;
+    font-size: 18px;
+    line-height: 1.4;
+  }
   .error-msg {
     color: var(--error);
     font-size: 12px;
@@ -286,6 +353,37 @@
   }
   .time-slot.selected .slot-label { color: var(--coffee); }
 
+  /* ── Product Grid ── */
+  .product-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 16px;
+    flex: 1;
+  }
+  .product-card {
+    background: #fff;
+    border: 2px solid var(--chino);
+    border-radius: 16px;
+    padding: 14px 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .product-card.selected {
+    border-color: var(--buttercup);
+    background: #fef7e0;
+    box-shadow: 0 0 0 2px var(--buttercup);
+  }
+  .product-card:active { transform: scale(0.97); }
+  .product-icon { margin-bottom: 6px; color: var(--coffee); }
+  .product-icon svg { width: 42px; height: 42px; }
+  .product-card.selected .product-icon { color: var(--buttercup); }
+  .product-name { font-weight: 700; font-size: 17px; line-height: 1.2; }
+  .product-desc { font-size: 13px; color: #7a6e5f; margin-top: 4px; }
+
   /* ── Blocked Dates Section ── */
   .blocked-section {
     background: rgba(0,0,0,0.03);
@@ -365,7 +463,19 @@
   }
   .confirm-row:last-child { border-bottom: none; }
   .confirm-label { color: #7a6e5f; font-weight: 500; }
-  .confirm-value { font-weight: 700; text-align: right; }
+  .confirm-value { font-weight: 700; text-align: right; max-width: 60%; }
+  .confirm-row.notes-row {
+    flex-direction: column;
+    gap: 4px;
+  }
+  .confirm-row.notes-row .confirm-value {
+    text-align: left;
+    max-width: 100%;
+    font-weight: 500;
+    font-size: 15px;
+    color: #5a5044;
+    font-style: italic;
+  }
 
   /* ── Thank You ── */
   .thankyou-bee { width: 100px; margin: 0 auto 12px; display: block; }
@@ -395,6 +505,12 @@
     color: var(--chino);
     font-size: 16px;
     line-height: 1.5;
+  }
+  .thankyou-products {
+    color: var(--buttercup);
+    font-size: 15px;
+    font-weight: 600;
+    margin-top: 8px;
   }
   .thankyou-text {
     text-align: center;
@@ -443,11 +559,20 @@
     .screen-title { font-size: 24px; }
     .screen-sub { font-size: 14px; margin-bottom: 8px; }
     .field label { font-size: 14px; }
-    .field input, .field select { padding: 10px 14px; font-size: 16px; }
+    .field input, .field select, .field textarea { padding: 10px 14px; font-size: 16px; }
+    .field textarea { min-height: 60px; font-size: 14px; }
     .date-cell { font-size: 14px; }
     .time-slot { padding: 10px; font-size: 16px; }
+    .product-card { padding: 10px 8px; }
+    .product-icon svg { width: 28px; height: 28px; }
+    .product-name { font-size: 13px; }
+    .product-desc { font-size: 10px; }
+    .product-grid { gap: 6px; margin-bottom: 8px; }
     .btn-primary { padding: 12px; font-size: 18px; }
+    .btn-secondary { padding: 10px; font-size: 16px; }
     .container { padding: 8px 16px 12px; }
+    .step-dot { width: 26px; height: 26px; font-size: 11px; }
+    .step-line { width: 24px; }
   }
 
   /* ── Responsive: Medium ── */
@@ -456,8 +581,13 @@
     .welcome-title { font-size: 34px; }
     .welcome-sub { font-size: 20px; }
     .welcome-cta { padding: 18px 60px; font-size: 24px; }
-    .field input, .field select { padding: 12px 16px; font-size: 18px; }
+    .field input, .field select, .field textarea { padding: 12px 16px; font-size: 18px; }
     .time-slot { padding: 12px; font-size: 18px; }
+    .product-icon svg { width: 34px; height: 34px; }
+    .product-name { font-size: 15px; }
+    .product-desc { font-size: 12px; }
+    .step-dot { width: 30px; height: 30px; font-size: 13px; }
+    .step-line { width: 30px; }
   }
 
   /* ── Responsive: Large ── */
@@ -469,11 +599,20 @@
     .screen-title { font-size: 42px; }
     .screen-sub { font-size: 24px; }
     .field label { font-size: 22px; }
-    .field input, .field select { padding: 20px 22px; font-size: 24px; }
+    .field input, .field select, .field textarea { padding: 20px 22px; font-size: 24px; }
+    .field textarea { min-height: 100px; }
     .date-cell { font-size: 22px; }
     .time-slot { padding: 20px; font-size: 24px; }
+    .product-card { padding: 24px 16px; }
+    .product-icon svg { width: 56px; height: 56px; }
+    .product-name { font-size: 22px; }
+    .product-desc { font-size: 16px; }
+    .product-grid { gap: 16px; }
     .btn-primary { padding: 22px; font-size: 26px; }
+    .btn-secondary { padding: 18px; font-size: 22px; }
     .container { max-width: 800px; }
+    .step-dot { width: 40px; height: 40px; font-size: 18px; }
+    .step-line { width: 48px; height: 4px; }
   }
 </style>
 </head>
@@ -485,7 +624,9 @@
     <img src="bee-icon.png" class="bee-icon" alt="Bumble Bee Blinds">
     <h1>BOOK CONSULTATION</h1>
   </div>
-  <div style="display:flex;align-items:center;gap:12px;">
+  <div style="display:flex;align-items:center;gap:8px;">
+    <div class="sync-status" id="syncStatus"><span class="sync-dot" id="syncDot"></span><span id="syncLabel">Synced</span></div>
+    <span class="offline-badge" id="offlineBadge">OFFLINE</span>
     <span class="booking-count" id="bookingCount">0</span>
     <button onclick="toggleAdmin()" style="background:none;border:none;color:var(--chino);font-size:20px;cursor:pointer;">&#9881;</button>
   </div>
@@ -493,9 +634,13 @@
 
 <!-- Admin Bar -->
 <div class="admin-bar" id="adminBar">
-  <button class="admin-btn" onclick="downloadCSV()">&#128229; Download CSV</button>
-  <button class="admin-btn" onclick="showBlockModal()">&#128683; Block Time</button>
-  <button class="admin-btn danger" onclick="confirmClear()">&#128465; Clear All</button>
+  <button class="admin-btn" onclick="downloadCSV()">&#128229; CSV</button>
+  <button class="admin-btn" onclick="showBookingsModal()">&#128203; Bookings</button>
+  <button class="admin-btn" onclick="showBlockModal()">&#128683; Block</button>
+  <button class="admin-btn" onclick="showScriptModal()">&#128214; Setup</button>
+  <button class="admin-btn" onclick="retryOfflineQueue()">&#128259; Retry Queue</button>
+  <button class="admin-btn danger" onclick="confirmClear()">&#128465; Clear</button>
+  <div class="admin-status" id="adminStatus"></div>
 </div>
 
 <!-- Main Content -->
@@ -523,10 +668,12 @@
       <div class="step-dot">3</div>
       <div class="step-line"></div>
       <div class="step-dot">4</div>
+      <div class="step-line"></div>
+      <div class="step-dot">5</div>
     </div>
 
     <div class="screen-title">Pick a Date</div>
-    <div class="screen-sub">Next 2 weeks available</div>
+    <div class="screen-sub">Next 30 days available</div>
 
     <div class="date-grid" id="dateGrid"></div>
 
@@ -543,6 +690,8 @@
       <div class="step-dot">3</div>
       <div class="step-line"></div>
       <div class="step-dot">4</div>
+      <div class="step-line"></div>
+      <div class="step-dot">5</div>
     </div>
 
     <div class="screen-title" id="timeTitle">Select a Time</div>
@@ -551,12 +700,12 @@
     <div class="time-grid" id="timeGrid"></div>
     <div class="no-slots" id="noSlots" style="display:none;">No available slots on this date.<br>Please go back and pick another day.</div>
 
-    <button class="btn-primary" onclick="goToContact()" id="btnToContact" disabled>Next &rarr;</button>
+    <button class="btn-primary" onclick="goToProducts()" id="btnToProducts" disabled>Next &rarr;</button>
     <button class="btn-secondary" onclick="showScreen('date')">&#8592; Back</button>
   </div>
 
-  <!-- SCREEN 3: Contact Info -->
-  <div class="screen" id="screen-contact">
+  <!-- SCREEN 3: Product Interest -->
+  <div class="screen" id="screen-products">
     <div class="progress">
       <div class="step-dot done">&#10003;</div>
       <div class="step-line done"></div>
@@ -565,6 +714,92 @@
       <div class="step-dot active">3</div>
       <div class="step-line"></div>
       <div class="step-dot">4</div>
+      <div class="step-line"></div>
+      <div class="step-dot">5</div>
+    </div>
+
+    <div class="screen-title">What Interests You?</div>
+    <div class="screen-sub">Tap all that apply</div>
+
+    <div class="product-grid">
+      <div class="product-card" onclick="toggleProduct(this)" data-product="Shutters">
+        <div class="product-icon"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="6" y="4" width="36" height="40" rx="2"/><line x1="10" y1="12" x2="38" y2="12"/><line x1="10" y1="20" x2="38" y2="20"/><line x1="10" y1="28" x2="38" y2="28"/><line x1="10" y1="36" x2="38" y2="36"/><line x1="24" y1="4" x2="24" y2="44"/></svg></div>
+        <div class="product-name">Shutters</div>
+        <div class="product-desc">Plantation & composite</div>
+      </div>
+      <div class="product-card" onclick="toggleProduct(this)" data-product="Cellular Shades">
+        <div class="product-icon"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="6" y="2" width="36" height="6" rx="1"/><path d="M10 14 L18 8 L26 14 L34 8 L38 11"/><path d="M10 14 L18 20 L26 14 L34 20 L38 17"/><path d="M10 22 L18 28 L26 22 L34 28 L38 25"/><path d="M10 22 L18 16 L26 22 L34 16 L38 19"/><path d="M10 30 L18 36 L26 30 L34 36 L38 33"/><path d="M10 30 L18 24 L26 30 L34 24 L38 27"/><line x1="10" y1="8" x2="10" y2="36"/><line x1="38" y1="8" x2="38" y2="36"/></svg></div>
+        <div class="product-name">Cellular Shades</div>
+        <div class="product-desc">Honeycomb insulation</div>
+      </div>
+      <div class="product-card" onclick="toggleProduct(this)" data-product="Roller Shades">
+        <div class="product-icon"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="8" y="4" width="32" height="8" rx="4"/><rect x="10" y="12" width="28" height="28" rx="1"/><line x1="22" y1="40" x2="26" y2="40"/><circle cx="24" cy="43" r="2"/></svg></div>
+        <div class="product-name">Roller Shades</div>
+        <div class="product-desc">Solar, blackout & more</div>
+      </div>
+      <div class="product-card" onclick="toggleProduct(this)" data-product="Roman Shades">
+        <div class="product-icon"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="6" y="2" width="36" height="6" rx="1"/><line x1="6" y1="8" x2="6" y2="44"/><line x1="42" y1="8" x2="42" y2="44"/><path d="M6 18 Q24 14 42 18"/><path d="M6 28 Q24 24 42 28"/><path d="M6 38 Q24 32 42 38"/><line x1="6" y1="44" x2="42" y2="44"/></svg></div>
+        <div class="product-name">Roman Shades</div>
+        <div class="product-desc">Elegant fabric folds</div>
+      </div>
+      <div class="product-card" onclick="toggleProduct(this)" data-product="Drapery">
+        <div class="product-icon"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="4" y1="4" x2="44" y2="4"/><path d="M8 4 Q6 24 10 44"/><path d="M16 4 Q12 20 14 44"/><path d="M8 4 Q12 16 16 4"/><path d="M32 4 Q36 20 34 44"/><path d="M40 4 Q42 24 38 44"/><path d="M32 4 Q36 16 40 4"/><circle cx="8" cy="4" r="2" fill="currentColor"/><circle cx="16" cy="4" r="2" fill="currentColor"/><circle cx="32" cy="4" r="2" fill="currentColor"/><circle cx="40" cy="4" r="2" fill="currentColor"/></svg></div>
+        <div class="product-name">Drapery</div>
+        <div class="product-desc">Custom drapes & curtains</div>
+      </div>
+      <div class="product-card" onclick="toggleProduct(this)" data-product="Outdoor Shades">
+        <div class="product-icon"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="38" cy="10" r="5"/><line x1="38" y1="2" x2="38" y2="4"/><line x1="38" y1="16" x2="38" y2="18"/><line x1="30" y1="10" x2="32" y2="10"/><line x1="44" y1="10" x2="46" y2="10"/><rect x="4" y="6" width="28" height="4" rx="1"/><rect x="6" y="10" width="24" height="32" rx="1"/><line x1="6" y1="18" x2="30" y2="18"/><line x1="6" y1="26" x2="30" y2="26"/><line x1="6" y1="34" x2="30" y2="34"/></svg></div>
+        <div class="product-name">Outdoor Shades</div>
+        <div class="product-desc">Lanai & patio solutions</div>
+      </div>
+      <div class="product-card" onclick="toggleProduct(this)" data-product="Motorization">
+        <div class="product-icon"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="12" y="6" width="24" height="36" rx="4"/><line x1="20" y1="6" x2="28" y2="6"/><circle cx="24" cy="36" r="2"/><path d="M20 20 L24 16 L28 20"/><path d="M20 26 L24 22 L28 26"/><path d="M6 16 Q2 24 6 32"/><path d="M42 16 Q46 24 42 32"/></svg></div>
+        <div class="product-name">Motorization</div>
+        <div class="product-desc">Smart home & voice control</div>
+      </div>
+      <div class="product-card" onclick="toggleProduct(this)" data-product="Sheer Shades">
+        <div class="product-icon"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="8" y="4" width="32" height="6" rx="2"/><rect x="10" y="10" width="28" height="32" rx="1" stroke-dasharray="4 3"/><line x1="10" y1="18" x2="38" y2="18" stroke-dasharray="4 3"/><line x1="10" y1="26" x2="38" y2="26" stroke-dasharray="4 3"/><line x1="10" y1="34" x2="38" y2="34" stroke-dasharray="4 3"/></svg></div>
+        <div class="product-name">Sheer Shades</div>
+        <div class="product-desc">Light filtering views</div>
+      </div>
+      <div class="product-card" onclick="toggleProduct(this)" data-product="Banded Shades">
+        <div class="product-icon"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="8" y="4" width="32" height="6" rx="2"/><line x1="8" y1="10" x2="8" y2="42"/><line x1="40" y1="10" x2="40" y2="42"/><rect x="10" y="12" width="28" height="6" rx="1"/><rect x="10" y="22" width="28" height="6" rx="1"/><rect x="10" y="32" width="28" height="6" rx="1"/></svg></div>
+        <div class="product-name">Banded Shades</div>
+        <div class="product-desc">Dual-layer light control</div>
+      </div>
+      <div class="product-card" onclick="toggleProduct(this)" data-product="Smart Drapes">
+        <div class="product-icon"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="4" y1="4" x2="44" y2="4"/><path d="M8 4 Q10 24 12 44"/><path d="M20 4 Q18 20 20 44"/><path d="M28 4 Q30 20 28 44"/><path d="M40 4 Q38 24 36 44"/><path d="M32 14 Q36 10 40 14"/><path d="M32 10 Q36 6 40 10"/></svg></div>
+        <div class="product-name">Smart Drapes</div>
+        <div class="product-desc">Motorized curtains</div>
+      </div>
+      <div class="product-card" onclick="toggleProduct(this)" data-product="Natural Woven Shades">
+        <div class="product-icon"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="8" y="4" width="32" height="6" rx="2"/><path d="M10 14 H38 M10 20 H38 M10 26 H38 M10 32 H38 M10 38 H38"/><path d="M14 10 V42 M22 10 V42 M30 10 V42 M38 10 V42"/></svg></div>
+        <div class="product-name">Natural Woven</div>
+        <div class="product-desc">Bamboo & organic textures</div>
+      </div>
+      <div class="product-card" onclick="toggleProduct(this)" data-product="Not Sure - Need Help">
+        <div class="product-icon"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="24" cy="24" r="18"/><path d="M18 18 Q18 12 24 12 Q30 12 30 18 Q30 22 24 24 L24 28"/><circle cx="24" cy="34" r="2" fill="currentColor"/></svg></div>
+        <div class="product-name">Not Sure Yet</div>
+        <div class="product-desc">I'd like expert guidance</div>
+      </div>
+    </div>
+
+    <button class="btn-primary" onclick="goToContact()">Next &rarr;</button>
+    <button class="btn-secondary" onclick="showScreen('time')">&#8592; Back</button>
+  </div>
+
+  <!-- SCREEN 4: Contact Info + Notes -->
+  <div class="screen" id="screen-contact">
+    <div class="progress">
+      <div class="step-dot done">&#10003;</div>
+      <div class="step-line done"></div>
+      <div class="step-dot done">&#10003;</div>
+      <div class="step-line done"></div>
+      <div class="step-dot done">&#10003;</div>
+      <div class="step-line done"></div>
+      <div class="step-dot active">4</div>
+      <div class="step-line"></div>
+      <div class="step-dot">5</div>
     </div>
 
     <div class="screen-title">Your Details</div>
@@ -593,14 +828,19 @@
     <div class="field">
       <label for="address">Full Address *</label>
       <input type="text" id="address" placeholder="123 Main St, Tampa, FL 33602" autocomplete="street-address">
-      <div class="error-msg" id="address-error">Please enter your full address</div>
+      <div class="error-msg" id="address-error">Please enter your full address (street, city, state, zip)</div>
+      <div id="addressHint" style="font-size:12px;color:var(--buttercup);margin-top:4px;display:none;font-weight:600;"></div>
+    </div>
+    <div class="field">
+      <label for="notes">Notes <span style="font-weight:400;color:#7a6e5f;">(optional)</span></label>
+      <textarea id="notes" placeholder="Number of windows, room types, special requests, etc." rows="3"></textarea>
     </div>
 
     <button class="btn-primary" onclick="goToConfirm()">Review Booking &rarr;</button>
-    <button class="btn-secondary" onclick="showScreen('time')">&#8592; Back</button>
+    <button class="btn-secondary" onclick="showScreen('products')">&#8592; Back</button>
   </div>
 
-  <!-- SCREEN 4: Confirm -->
+  <!-- SCREEN 5: Confirm -->
   <div class="screen" id="screen-confirm">
     <div class="progress">
       <div class="step-dot done">&#10003;</div>
@@ -609,7 +849,9 @@
       <div class="step-line done"></div>
       <div class="step-dot done">&#10003;</div>
       <div class="step-line done"></div>
-      <div class="step-dot active">4</div>
+      <div class="step-dot done">&#10003;</div>
+      <div class="step-line done"></div>
+      <div class="step-dot active">5</div>
     </div>
 
     <div class="screen-title">Confirm Booking</div>
@@ -621,9 +863,11 @@
     <button class="btn-secondary" onclick="showScreen('contact')">&#8592; Back</button>
   </div>
 
-  <!-- SCREEN 5: Thank You -->
+  <!-- SCREEN 6: Thank You -->
   <div class="screen" id="screen-thanks">
     <div class="progress">
+      <div class="step-dot done">&#10003;</div>
+      <div class="step-line done"></div>
       <div class="step-dot done">&#10003;</div>
       <div class="step-line done"></div>
       <div class="step-dot done">&#10003;</div>
@@ -640,11 +884,12 @@
       <div class="thankyou-label">Your Consultation</div>
       <div class="thankyou-datetime" id="thanksDateTime"></div>
       <div class="thankyou-detail">3-hour in-home consultation<br>with a design expert</div>
+      <div class="thankyou-products" id="thanksProducts"></div>
     </div>
 
     <div class="thankyou-text">
-      We'll send a confirmation to your email.<br>
-      See you soon!
+      A confirmation has been sent to your email.<br>
+      We look forward to seeing you!
     </div>
 
     <button class="btn-primary" onclick="resetForm()">Next Guest &rarr;</button>
@@ -682,24 +927,141 @@
   </div>
 </div>
 
+<!-- Bookings List Modal -->
+<div style="position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:300;display:none;align-items:center;justify-content:center;" id="bookingsModal">
+  <div style="background:#fff;border-radius:18px;padding:32px 24px;width:90%;max-width:600px;max-height:80vh;overflow-y:auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <h2 style="font-size:20px;">Upcoming Bookings</h2>
+      <button onclick="closeBookingsModal()" style="background:none;border:none;font-size:24px;cursor:pointer;color:#7a6e5f;">&times;</button>
+    </div>
+    <div id="bookingsListContent"></div>
+  </div>
+</div>
+
+<!-- Apps Script Setup Modal -->
+<div style="position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:300;display:none;align-items:center;justify-content:center;" id="scriptModal">
+  <div style="background:#fff;border-radius:18px;padding:32px 24px;width:90%;max-width:600px;max-height:80vh;overflow-y:auto;">
+    <h2 style="font-size:20px;margin-bottom:12px;">Google Sheets Setup</h2>
+    <p style="font-size:14px;color:#7a6e5f;margin-bottom:16px;line-height:1.5;">
+      This script handles booking sync between iPads and sends confirmation emails.<br><br>
+      <strong>Setup:</strong><br>
+      1. Create a Google Sheet with headers:<br>
+      <code style="font-size:12px;">Timestamp | Date | Time | First Name | Last Name | Email | Phone | Address | Products | Notes | Duration</code><br>
+      2. Go to Extensions &rarr; Apps Script<br>
+      3. Replace all code with the script below<br>
+      4. Deploy &rarr; New Deployment &rarr; Web App &rarr; Execute as: Me &rarr; Who has access: Anyone<br>
+      5. Copy the deployment URL and update it in the app code
+    </p>
+    <textarea id="scriptContent" readonly style="width:100%;height:250px;padding:12px;border:2px solid var(--chino);border-radius:10px;font-family:monospace;font-size:11px;line-height:1.4;resize:vertical;background:#f9f9f9;"></textarea>
+    <div style="display:flex;gap:10px;margin-top:12px;">
+      <button onclick="closeScriptModal()" style="flex:1;padding:12px;border-radius:10px;font-size:15px;font-weight:600;background:#eee;border:none;cursor:pointer;">Close</button>
+      <button onclick="copyScript()" style="flex:1;padding:12px;border-radius:10px;font-size:15px;font-weight:600;background:var(--buttercup);border:none;cursor:pointer;">Copy Script</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ── Config ──
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxuYFnHUYUpzj_E7C-qXmGKm_zJv0fhWjUsYaoQj4SEgusi2WSyt-sH5ZSPoB_P3QTQuA/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzBjQCwwzkwB8-Y0Rz0MdldJXH6HL2bV-NypJIJaNad8oeskbMqAoTB-Re4ALDAhRpt2Q/exec';
 const START_HOUR = 9;
-const END_HOUR = 21; // last slot 6 PM ends at 9 PM
-const SLOT_DURATION = 3; // hours
-const DAYS_AHEAD = 14;
+const END_HOUR = 21;
+const SLOT_DURATION = 3;
+const DAYS_AHEAD = 30;
 
 // ── State ──
 let bookings = JSON.parse(localStorage.getItem('bbb_bookings') || '[]');
 let cloudBookings = [];
 let blockedSlots = JSON.parse(localStorage.getItem('bbb_blocked') || '[]');
+let offlineQueue = JSON.parse(localStorage.getItem('bbb_offline_queue') || '[]');
 let selectedDate = null;
 let selectedTime = null;
+let selectedProducts = new Set();
 let currentBooking = {};
+let isOnline = navigator.onLine;
 
 updateBookingCount();
+updateSyncUI('syncing');
 loadCloudBookings();
+retryOfflineQueue();
+
+// ── Sync Agent: poll Google Sheets every 15s to keep 2 iPads current ──
+const SYNC_INTERVAL = 15000;
+let syncTimer = null;
+
+function startSyncAgent() {
+  if (syncTimer) return;
+  syncTimer = setInterval(() => {
+    loadCloudBookings();
+  }, SYNC_INTERVAL);
+}
+
+function stopSyncAgent() {
+  if (syncTimer) {
+    clearInterval(syncTimer);
+    syncTimer = null;
+  }
+}
+
+startSyncAgent();
+
+// Sync on wake + online/offline detection
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    loadCloudBookings();
+    retryOfflineQueue();
+    startSyncAgent();
+  } else {
+    stopSyncAgent();
+  }
+});
+
+window.addEventListener('online', () => {
+  isOnline = true;
+  updateSyncUI('syncing');
+  loadCloudBookings();
+  retryOfflineQueue();
+});
+
+window.addEventListener('offline', () => {
+  isOnline = false;
+  updateSyncUI('offline');
+});
+
+// ── Sync UI ──
+function updateSyncUI(state) {
+  const dot = document.getElementById('syncDot');
+  const label = document.getElementById('syncLabel');
+  const badge = document.getElementById('offlineBadge');
+
+  dot.className = 'sync-dot';
+  badge.classList.remove('visible');
+
+  if (state === 'synced') {
+    // green is the default (no extra class needed)
+    label.textContent = 'Synced';
+  } else if (state === 'syncing') {
+    dot.classList.add('syncing');
+    label.textContent = 'Syncing...';
+  } else if (state === 'offline') {
+    dot.classList.add('offline');
+    label.textContent = 'Offline';
+    badge.classList.add('visible');
+  } else if (state === 'error') {
+    dot.classList.add('offline');
+    label.textContent = 'Sync error';
+  }
+
+  // Show offline queue count
+  const queueCount = offlineQueue.length;
+  const statusEl = document.getElementById('adminStatus');
+  if (queueCount > 0) {
+    badge.textContent = queueCount + ' queued';
+    badge.classList.add('visible');
+    statusEl.textContent = queueCount + ' booking(s) waiting to sync';
+  } else {
+    statusEl.textContent = '';
+  }
+}
 
 // ── Generate available time slots for a day ──
 function getTimeSlots() {
@@ -708,6 +1070,20 @@ function getTimeSlots() {
     slots.push(h.toString().padStart(2, '0') + ':00');
   }
   return slots;
+}
+
+// ── Parse formatted time back to raw slot format ──
+function parseFormattedTime(formatted) {
+  // "9 AM - 12 PM" → "09:00", already raw "09:00" passes through
+  if (!formatted) return formatted;
+  if (/^\d{2}:\d{2}$/.test(formatted)) return formatted; // already HH:MM
+  var match = formatted.match(/^(\d+)\s*(AM|PM)/i);
+  if (!match) return formatted;
+  var h = parseInt(match[1]);
+  var ampm = match[2].toUpperCase();
+  if (ampm === 'PM' && h < 12) h += 12;
+  if (ampm === 'AM' && h === 12) h = 0;
+  return h.toString().padStart(2, '0') + ':00';
 }
 
 // ── Format helpers ──
@@ -740,9 +1116,12 @@ function showScreen(id) {
 }
 
 function startBooking() {
+  loadCloudBookings(); // fresh sync before showing dates
   buildDateGrid();
   selectedDate = null;
   selectedTime = null;
+  selectedProducts.clear();
+  document.querySelectorAll('#screen-products .product-card').forEach(c => c.classList.remove('selected'));
   showScreen('date');
 }
 
@@ -762,14 +1141,12 @@ function buildDateGrid() {
   const today = new Date();
   today.setHours(0,0,0,0);
 
-  // Start from tomorrow
   const start = new Date(today);
   start.setDate(start.getDate() + 1);
 
   const end = new Date(today);
   end.setDate(end.getDate() + DAYS_AHEAD);
 
-  // Fill empty cells before first day
   const firstDow = start.getDay();
   for (let i = 0; i < firstDow; i++) {
     const empty = document.createElement('div');
@@ -777,7 +1154,6 @@ function buildDateGrid() {
     grid.appendChild(empty);
   }
 
-  // Fill dates
   const current = new Date(start);
   while (current <= end) {
     const dateStr = current.toISOString().slice(0, 10);
@@ -804,7 +1180,11 @@ function buildDateGrid() {
 }
 
 function isDateBlocked(dateStr) {
-  return blockedSlots.some(b => b.date === dateStr && !b.time);
+  if (blockedSlots.some(b => b.date === dateStr && !b.time)) return true;
+  // Auto-block day when 2+ appointments are booked
+  const dayBookings = bookings.filter(b => b.date === dateStr).length +
+                      cloudBookings.filter(b => b.date === dateStr).length;
+  return dayBookings >= 2;
 }
 
 function isSlotBlocked(dateStr, timeStr) {
@@ -818,15 +1198,83 @@ function isSlotBooked(dateStr, timeStr) {
 
 function loadCloudBookings() {
   if (!SHEETS_URL || SHEETS_URL === 'BOOKING_SHEETS_URL_HERE') return;
-  fetch(SHEETS_URL + '?action=list')
-    .then(r => r.json())
-    .then(data => {
+  updateSyncUI('syncing');
+  fetch(SHEETS_URL + '?action=list', { redirect: 'follow', credentials: 'omit' })
+    .then(r => r.text())
+    .then(text => {
+      console.log('Sheets response:', text.substring(0, 200));
+      var data = JSON.parse(text);
       if (Array.isArray(data)) {
-        cloudBookings = data;
+        cloudBookings = data.map(b => ({ ...b, time: parseFormattedTime(b.time) }));
         updateBookingCount();
+        refreshTimeSlotsIfVisible();
+        refreshDateGridIfVisible();
+        isOnline = true;
+        updateSyncUI('synced');
       }
     })
-    .catch(() => {});
+    .catch(err => {
+      console.error('Sync error:', err.message, err);
+      updateSyncUI(navigator.onLine ? 'error' : 'offline');
+    });
+}
+
+function refreshTimeSlotsIfVisible() {
+  const timeScreen = document.getElementById('screen-time');
+  if (!timeScreen.classList.contains('active') || !selectedDate) return;
+
+  // Re-check each time slot's booked/blocked status
+  const slots = document.querySelectorAll('#timeGrid .time-slot');
+  slots.forEach(slot => {
+    // Extract the time from the slot text
+    const timeText = slot.childNodes[0].textContent;
+    const allSlots = getTimeSlots();
+    const matchingTime = allSlots.find(t => formatTime(t) === timeText);
+    if (!matchingTime) return;
+
+    const booked = isSlotBooked(selectedDate, matchingTime);
+    const blocked = isSlotBlocked(selectedDate, matchingTime);
+
+    if ((booked || blocked) && !slot.classList.contains('booked')) {
+      // Slot just became unavailable — mark it
+      slot.classList.add('booked');
+      slot.classList.remove('selected');
+      slot.onclick = null;
+      const label = slot.querySelector('.slot-label');
+      if (label) label.textContent = booked ? 'Booked' : 'Unavailable';
+
+      // If this was the selected time, deselect it
+      if (selectedTime === matchingTime) {
+        selectedTime = null;
+        document.getElementById('btnToProducts').disabled = true;
+        toast('That time slot was just booked. Please pick another.');
+      }
+    }
+  });
+}
+
+function refreshDateGridIfVisible() {
+  const dateScreen = document.getElementById('screen-date');
+  if (!dateScreen.classList.contains('active')) return;
+
+  // Re-check each date cell's availability
+  document.querySelectorAll('.date-cell[data-date]').forEach(cell => {
+    const dateStr = cell.dataset.date;
+    const isFullyBlocked = isDateBlocked(dateStr);
+    const availableSlots = getAvailableSlotsForDate(dateStr);
+
+    if ((isFullyBlocked || availableSlots.length === 0) && cell.classList.contains('available')) {
+      cell.className = 'date-cell unavailable';
+      cell.onclick = null;
+
+      if (selectedDate === dateStr) {
+        selectedDate = null;
+        document.getElementById('btnToTime').disabled = true;
+        document.getElementById('btnToTime').textContent = 'Select a Date';
+        toast('That date is no longer available. Please pick another.');
+      }
+    }
+  });
 }
 
 function getAvailableSlotsForDate(dateStr) {
@@ -838,19 +1286,20 @@ function selectDate(dateStr, cell) {
   cell.classList.add('selected');
   selectedDate = dateStr;
   document.getElementById('btnToTime').disabled = false;
-  document.getElementById('btnToTime').textContent = formatDate(dateStr) + ' →';
+  document.getElementById('btnToTime').textContent = formatDate(dateStr) + ' \u2192';
 }
 
 // ── Time Slots ──
 function goToTime() {
   if (!selectedDate) return;
+  loadCloudBookings(); // fresh sync before showing time slots
 
   document.getElementById('timeSub').textContent = formatDate(selectedDate);
   const grid = document.getElementById('timeGrid');
   const noSlots = document.getElementById('noSlots');
   grid.innerHTML = '';
   selectedTime = null;
-  document.getElementById('btnToContact').disabled = true;
+  document.getElementById('btnToProducts').disabled = true;
 
   const slots = getTimeSlots();
   const available = getAvailableSlotsForDate(selectedDate);
@@ -885,12 +1334,31 @@ function selectTime(time, slot) {
   document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
   slot.classList.add('selected');
   selectedTime = time;
-  document.getElementById('btnToContact').disabled = false;
+  document.getElementById('btnToProducts').disabled = false;
+}
+
+// ── Products ──
+function goToProducts() {
+  if (!selectedTime) return;
+  showScreen('products');
+}
+
+function toggleProduct(card) {
+  card.classList.toggle('selected');
+  const product = card.dataset.product;
+  if (selectedProducts.has(product)) {
+    selectedProducts.delete(product);
+  } else {
+    selectedProducts.add(product);
+  }
 }
 
 // ── Contact ──
 function goToContact() {
-  if (!selectedTime) return;
+  if (selectedProducts.size === 0) {
+    toast('Please select at least one product');
+    return;
+  }
   showScreen('contact');
   document.getElementById('fname').focus();
 }
@@ -919,13 +1387,23 @@ function goToConfirm() {
   const email = document.getElementById('email');
   const phone = document.getElementById('phone');
   const address = document.getElementById('address');
+  const notes = document.getElementById('notes');
   let valid = true;
 
   if (!fname.value.trim()) { showError('fname'); valid = false; } else { clearError('fname'); }
   if (!lname.value.trim()) { showError('lname'); valid = false; } else { clearError('lname'); }
   if (!isValidEmail(email.value.trim())) { showError('email'); valid = false; } else { clearError('email'); }
   if (!isValidPhone(phone.value)) { showError('phone'); valid = false; } else { clearError('phone'); }
-  if (!address.value.trim() || address.value.trim().length < 10) { showError('address'); valid = false; } else { clearError('address'); }
+  const addrVal = address.value.trim();
+  const addrHasStreet = /\d+\s+\w/.test(addrVal);
+  const addrHasZip = /\b\d{5}\b/.test(addrVal);
+  if (!addrVal || addrVal.length < 10 || !addrHasStreet || !addrHasZip) {
+    showError('address');
+    if (addrVal && !addrHasStreet) document.getElementById('address-error').textContent = 'Include a street number (e.g. 123 Main St)';
+    else if (addrVal && !addrHasZip) document.getElementById('address-error').textContent = 'Include a 5-digit zip code';
+    else document.getElementById('address-error').textContent = 'Please enter your full address (street, city, state, zip)';
+    valid = false;
+  } else { clearError('address'); }
 
   if (!valid) return;
 
@@ -935,27 +1413,107 @@ function goToConfirm() {
     email: email.value.trim(),
     phone: phone.value.trim(),
     address: address.value.trim(),
+    products: Array.from(selectedProducts).join(', '),
+    notes: notes.value.trim(),
     date: selectedDate,
     time: selectedTime
   };
 
   // Build confirmation
   const details = document.getElementById('confirmDetails');
-  details.innerHTML = `
+  let html = `
     <div class="confirm-row"><span class="confirm-label">Date</span><span class="confirm-value">${formatDate(selectedDate)}</span></div>
     <div class="confirm-row"><span class="confirm-label">Time</span><span class="confirm-value">${formatTime(selectedTime)}</span></div>
     <div class="confirm-row"><span class="confirm-label">Name</span><span class="confirm-value">${currentBooking.fname} ${currentBooking.lname}</span></div>
     <div class="confirm-row"><span class="confirm-label">Email</span><span class="confirm-value">${currentBooking.email}</span></div>
     <div class="confirm-row"><span class="confirm-label">Phone</span><span class="confirm-value">${currentBooking.phone}</span></div>
     <div class="confirm-row"><span class="confirm-label">Address</span><span class="confirm-value">${currentBooking.address}</span></div>
+    <div class="confirm-row"><span class="confirm-label">Products</span><span class="confirm-value">${currentBooking.products}</span></div>
     <div class="confirm-row"><span class="confirm-label">Duration</span><span class="confirm-value">3 hours</span></div>
   `;
 
+  if (currentBooking.notes) {
+    html += `<div class="confirm-row notes-row"><span class="confirm-label">Notes</span><span class="confirm-value">${currentBooking.notes}</span></div>`;
+  }
+
+  html += `<div style="text-align:center;margin-top:12px;"><span onclick="editField('contact')" style="color:var(--buttercup);font-weight:600;font-size:15px;cursor:pointer;text-decoration:underline;">Edit Details / Notes</span></div>`;
+
+  details.innerHTML = html;
   showScreen('confirm');
+}
+
+// ── Edit from Confirm ──
+function editField(screen) {
+  showScreen(screen);
+  if (screen === 'contact') {
+    document.getElementById('notes').focus();
+  }
 }
 
 // ── Submit ──
 function submitBooking() {
+  const submitBtn = document.querySelector('#screen-confirm .btn-primary');
+  if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Checking availability...'; }
+
+  // Fresh sync before submitting to catch bookings from other iPads
+  freshSyncThenSubmit(submitBtn);
+}
+
+function freshSyncThenSubmit(submitBtn) {
+  const restoreBtn = () => {
+    if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Confirm Booking'; }
+  };
+
+  if (!SHEETS_URL || SHEETS_URL === 'BOOKING_SHEETS_URL_HERE') {
+    doSubmit();
+    restoreBtn();
+    return;
+  }
+
+  fetch(SHEETS_URL + '?action=list', { redirect: 'follow', credentials: 'omit' })
+    .then(r => r.json())
+    .then(data => {
+      if (Array.isArray(data)) {
+        cloudBookings = data.map(b => ({ ...b, time: parseFormattedTime(b.time) }));
+        updateBookingCount();
+      }
+
+      // Re-check: is the specific slot taken?
+      if (isSlotBooked(selectedDate, selectedTime)) {
+        toast('Sorry, that time slot was just booked on another device! Please pick another time.');
+        restoreBtn();
+        showScreen('time');
+        goToTime();
+        return;
+      }
+
+      // Re-check: has this day hit the 2-booking limit?
+      if (isDateBlocked(selectedDate)) {
+        toast('Sorry, this day just filled up from another device! Please pick another date.');
+        restoreBtn();
+        showScreen('date');
+        buildDateGrid();
+        return;
+      }
+
+      doSubmit();
+      restoreBtn();
+    })
+    .catch(() => {
+      // Offline — fall back to local check only
+      if (isSlotBooked(selectedDate, selectedTime) || isDateBlocked(selectedDate)) {
+        toast('That slot is no longer available. Please pick another.');
+        restoreBtn();
+        showScreen('time');
+        goToTime();
+        return;
+      }
+      doSubmit();
+      restoreBtn();
+    });
+}
+
+function doSubmit() {
   const booking = {
     ...currentBooking,
     timestamp: new Date().toISOString()
@@ -967,24 +1525,10 @@ function submitBooking() {
 
   // Thank you screen
   document.getElementById('thanksDateTime').innerHTML = formatDate(selectedDate) + '<br>' + formatTime(selectedTime);
+  document.getElementById('thanksProducts').textContent = currentBooking.products;
 
-  // Sync to Google Sheets
-  if (SHEETS_URL && SHEETS_URL !== 'BOOKING_SHEETS_URL_HERE') {
-    const params = new URLSearchParams({
-      timestamp: booking.timestamp,
-      date: booking.date,
-      time: formatTime(booking.time),
-      fname: booking.fname,
-      lname: booking.lname,
-      email: booking.email,
-      phone: booking.phone,
-      address: booking.address,
-      duration: '3 hours'
-    });
-    fetch(SHEETS_URL + '?' + params.toString(), { mode: 'no-cors' }).then(() => {
-      setTimeout(loadCloudBookings, 2000);
-    }).catch(() => {});
-  }
+  // Sync to Google Sheets via POST
+  syncBookingToSheets(booking);
 
   showScreen('thanks');
 }
@@ -996,9 +1540,12 @@ function resetForm() {
   document.getElementById('email').value = '';
   document.getElementById('phone').value = '';
   document.getElementById('address').value = '';
+  document.getElementById('notes').value = '';
   ['fname','lname','email','phone','address'].forEach(clearError);
   selectedDate = null;
   selectedTime = null;
+  selectedProducts.clear();
+  document.querySelectorAll('#screen-products .product-card').forEach(c => c.classList.remove('selected'));
   currentBooking = {};
   showScreen('welcome');
 }
@@ -1009,7 +1556,6 @@ function toggleAdmin() {
 }
 
 function updateBookingCount() {
-  // Deduplicate by date+time across local and cloud
   const all = new Set();
   bookings.forEach(b => all.add(b.date + '|' + b.time));
   cloudBookings.forEach(b => all.add(b.date + '|' + b.time));
@@ -1018,8 +1564,8 @@ function updateBookingCount() {
 
 function downloadCSV() {
   if (bookings.length === 0) { toast('No bookings to export'); return; }
-  const headers = ['Timestamp', 'Date', 'Time', 'First Name', 'Last Name', 'Email', 'Phone', 'Address'];
-  const rows = bookings.map(b => [b.timestamp, b.date, formatTime(b.time), b.fname, b.lname, b.email, b.phone, b.address]);
+  const headers = ['Timestamp', 'Date', 'Time', 'First Name', 'Last Name', 'Email', 'Phone', 'Address', 'Products', 'Notes'];
+  const rows = bookings.map(b => [b.timestamp, b.date, formatTime(b.time), b.fname, b.lname, b.email, b.phone, b.address, b.products || '', b.notes || '']);
   let csv = headers.join(',') + '\n';
   rows.forEach(row => { csv += row.map(c => '"' + (c || '').replace(/"/g, '""') + '"').join(',') + '\n'; });
   const blob = new Blob([csv], { type: 'text/csv' });
@@ -1027,6 +1573,7 @@ function downloadCSV() {
   a.href = URL.createObjectURL(blob);
   a.download = 'bumble-bee-bookings-' + new Date().toISOString().slice(0,10) + '.csv';
   a.click();
+  URL.revokeObjectURL(a.href);
   toast('CSV downloaded!');
 }
 
@@ -1078,8 +1625,299 @@ function renderBlockedList() {
   container.innerHTML = '<div style="display:flex;flex-wrap:wrap;gap:6px;">' +
     blockedSlots.map((b, i) =>
       '<span class="blocked-tag">' + formatDateShort(b.date) + (b.time ? ' ' + formatTime(b.time) : ' All Day') +
-      ' <span class="remove" onclick="removeBlock(' + i + ')">✕</span></span>'
+      ' <span class="remove" onclick="removeBlock(' + i + ')">\u2715</span></span>'
     ).join('') + '</div>';
+}
+
+// ── Sync to Sheets via POST ──
+function syncBookingToSheets(booking) {
+  if (!SHEETS_URL || SHEETS_URL === 'BOOKING_SHEETS_URL_HERE') return;
+
+  const payload = {
+    action: 'book',
+    timestamp: booking.timestamp,
+    date: booking.date,
+    time: formatTime(booking.time),
+    fname: booking.fname,
+    lname: booking.lname,
+    email: booking.email,
+    phone: booking.phone,
+    address: booking.address,
+    products: booking.products || '',
+    notes: booking.notes || '',
+    duration: '3 hours'
+  };
+
+  fetch(SHEETS_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify(payload)
+  })
+  .then(() => {
+    // no-cors gives opaque response — verify via GET after short delay
+    setTimeout(() => {
+      loadCloudBookings();
+    }, 2000);
+  })
+  .catch(() => {
+    // Queue for retry
+    offlineQueue.push(payload);
+    localStorage.setItem('bbb_offline_queue', JSON.stringify(offlineQueue));
+    updateSyncUI(navigator.onLine ? 'error' : 'offline');
+    toast('Booking saved locally — will sync when connected');
+  });
+}
+
+// ── Offline Queue ──
+function retryOfflineQueue() {
+  if (offlineQueue.length === 0 || !SHEETS_URL || SHEETS_URL === 'BOOKING_SHEETS_URL_HERE') return;
+
+  const queue = [...offlineQueue];
+  let succeeded = 0;
+
+  const processNext = (index) => {
+    if (index >= queue.length) {
+      // Remove successful ones
+      offlineQueue = offlineQueue.slice(succeeded);
+      localStorage.setItem('bbb_offline_queue', JSON.stringify(offlineQueue));
+      updateSyncUI(offlineQueue.length === 0 ? 'synced' : 'error');
+      if (succeeded > 0) {
+        toast(succeeded + ' queued booking(s) synced!');
+        setTimeout(loadCloudBookings, 1500);
+      }
+      return;
+    }
+
+    fetch(SHEETS_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify(queue[index])
+    })
+    .then(() => {
+      succeeded++;
+      processNext(index + 1);
+    })
+    .catch(() => {
+      // Stop retrying on network failure
+      offlineQueue = offlineQueue.slice(succeeded);
+      localStorage.setItem('bbb_offline_queue', JSON.stringify(offlineQueue));
+      updateSyncUI('offline');
+    });
+  };
+
+  processNext(0);
+}
+
+// ── Bookings List ──
+function showBookingsModal() {
+  document.getElementById('bookingsModal').style.display = 'flex';
+  renderBookingsList();
+}
+function closeBookingsModal() {
+  document.getElementById('bookingsModal').style.display = 'none';
+}
+
+function renderBookingsList() {
+  const container = document.getElementById('bookingsListContent');
+
+  // Merge local + cloud, deduplicate by date+time+name
+  const allBookings = [];
+  const seen = new Set();
+
+  const addBooking = (b, source) => {
+    const key = (b.date || '') + '|' + (b.time || '') + '|' + (b.fname || '') + '|' + (b.lname || '');
+    if (seen.has(key)) return;
+    seen.add(key);
+    allBookings.push({ ...b, source });
+  };
+
+  bookings.forEach(b => addBooking(b, 'local'));
+  cloudBookings.forEach(b => addBooking(b, 'cloud'));
+
+  // Sort by date + time
+  allBookings.sort((a, b) => {
+    const da = (a.date || '') + (a.time || '');
+    const db = (b.date || '') + (b.time || '');
+    return da.localeCompare(db);
+  });
+
+  if (allBookings.length === 0) {
+    container.innerHTML = '<p style="text-align:center;color:#7a6e5f;padding:24px;">No bookings yet.</p>';
+    return;
+  }
+
+  container.innerHTML = allBookings.map(b => {
+    const dateStr = b.date ? formatDate(b.date) : 'Unknown date';
+    const timeStr = b.time ? (b.time.includes('-') ? b.time : formatTime(b.time)) : '';
+    const name = [b.fname, b.lname].filter(Boolean).join(' ') || 'Unknown';
+    const details = [b.phone, b.email, b.products].filter(Boolean).join(' &bull; ');
+    const sourceTag = b.source === 'local' ? ' <span style="color:var(--buttercup);font-size:11px;">(this iPad)</span>' : '';
+
+    return '<div class="booking-list-item">' +
+      '<div class="bl-date">' + dateStr + ' &mdash; ' + timeStr + '</div>' +
+      '<div class="bl-name">' + name + sourceTag + '</div>' +
+      (details ? '<div class="bl-detail">' + details + '</div>' : '') +
+      (b.notes ? '<div class="bl-detail" style="font-style:italic;">Notes: ' + b.notes + '</div>' : '') +
+    '</div>';
+  }).join('');
+}
+
+// ── Apps Script Setup ──
+const APPS_SCRIPT = `// Bumble Bee Blinds — Booking Sheet Apps Script
+// Handles: write bookings (POST), read bookings (GET ?action=list), send confirmation emails
+// Anti-double-booking: uses LockService + checks for duplicate slots and 2-per-day limit
+
+function doPost(e) {
+  try {
+    var data = JSON.parse(e.postData.contents);
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+
+    // Lock to prevent race conditions between multiple iPads
+    var lock = LockService.getScriptLock();
+    lock.waitLock(10000);
+
+    try {
+      var existing = sheet.getDataRange().getValues();
+      var sameDateCount = 0;
+
+      for (var i = 1; i < existing.length; i++) {
+        var rowDate = existing[i][1];
+        if (rowDate instanceof Date) rowDate = Utilities.formatDate(rowDate, Session.getScriptTimeZone(), 'yyyy-MM-dd');
+        rowDate = (rowDate || '').toString();
+
+        var rowTime = existing[i][2];
+        if (rowTime instanceof Date) rowTime = Utilities.formatDate(rowTime, Session.getScriptTimeZone(), 'HH:mm');
+        rowTime = (rowTime || '').toString();
+
+        if (rowDate === (data.date || '')) {
+          sameDateCount++;
+          if (rowTime === (data.time || '')) {
+            lock.releaseLock();
+            return ContentService.createTextOutput(JSON.stringify({status: 'error', error: 'SLOT_TAKEN'}))
+              .setMimeType(ContentService.MimeType.JSON);
+          }
+        }
+      }
+
+      if (sameDateCount >= 2) {
+        lock.releaseLock();
+        return ContentService.createTextOutput(JSON.stringify({status: 'error', error: 'DAY_FULL'}))
+          .setMimeType(ContentService.MimeType.JSON);
+      }
+
+      sheet.appendRow([
+        data.timestamp || new Date().toISOString(),
+        data.date || '',
+        data.time || '',
+        data.fname || '',
+        data.lname || '',
+        data.email || '',
+        data.phone || '',
+        data.address || '',
+        data.products || '',
+        data.notes || '',
+        data.duration || '3 hours'
+      ]);
+    } finally {
+      lock.releaseLock();
+    }
+
+    // Send confirmation email
+    if (data.email) {
+      try {
+        var subject = 'Bumble Bee Blinds — Consultation Confirmed!';
+        var body = 'Hi ' + (data.fname || 'there') + ',\\n\\n' +
+          'Your free in-home consultation is booked!\\n\\n' +
+          'Date: ' + (data.date || 'TBD') + '\\n' +
+          'Time: ' + (data.time || 'TBD') + '\\n' +
+          'Duration: 3 hours\\n' +
+          'Address: ' + (data.address || '') + '\\n' +
+          (data.products ? 'Interested in: ' + data.products + '\\n' : '') +
+          '\\nA Bumble Bee Blinds design consultant will visit your home to help you find the perfect window treatments.\\n\\n' +
+          'If you need to reschedule, please call us at (813) 535-3028.\\n\\n' +
+          'Thank you!\\nBumble Bee Blinds — Tampa Bay\\n' +
+          'https://bumblebeeblinds.com/tampa-bay';
+        MailApp.sendEmail(data.email, subject, body);
+      } catch(emailErr) {
+        // Email failure shouldn't block the booking
+      }
+    }
+
+    return ContentService.createTextOutput(JSON.stringify({ status: 'ok' }))
+      .setMimeType(ContentService.MimeType.JSON);
+
+  } catch(err) {
+    return ContentService.createTextOutput(JSON.stringify({ status: 'error', error: err.toString() }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function doGet(e) {
+  try {
+    var action = (e.parameter.action || '').toLowerCase();
+
+    if (action === 'list') {
+      var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+      var data = sheet.getDataRange().getValues();
+      if (data.length <= 1) {
+        return ContentService.createTextOutput('[]').setMimeType(ContentService.MimeType.JSON);
+      }
+
+      var headers = data[0].map(function(h) { return h.toString().toLowerCase().replace(/\\s+/g, '_'); });
+      var rows = [];
+
+      for (var i = 1; i < data.length; i++) {
+        var row = {};
+        for (var j = 0; j < headers.length; j++) {
+          var key = headers[j];
+          var val = data[i][j];
+          // Map column names to what the app expects
+          if (key === 'first_name') key = 'fname';
+          if (key === 'last_name') key = 'lname';
+          if (key === 'date' && val instanceof Date) {
+            val = Utilities.formatDate(val, Session.getScriptTimeZone(), 'yyyy-MM-dd');
+          }
+          if (key === 'timestamp' && val instanceof Date) {
+            val = val.toISOString();
+          }
+          if (key === 'time' && val instanceof Date) {
+            val = Utilities.formatDate(val, Session.getScriptTimeZone(), 'HH:mm');
+          }
+          row[key] = val ? val.toString() : '';
+        }
+        rows.push(row);
+      }
+
+      return ContentService.createTextOutput(JSON.stringify(rows))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // Unknown action
+    return ContentService.createTextOutput(JSON.stringify({ status: 'error', error: 'Unknown action' }))
+      .setMimeType(ContentService.MimeType.JSON);
+
+  } catch(err) {
+    return ContentService.createTextOutput(JSON.stringify({ status: 'error', error: err.toString() }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}`;
+
+function showScriptModal() {
+  document.getElementById('scriptContent').value = APPS_SCRIPT;
+  document.getElementById('scriptModal').style.display = 'flex';
+}
+function closeScriptModal() {
+  document.getElementById('scriptModal').style.display = 'none';
+}
+function copyScript() {
+  navigator.clipboard.writeText(APPS_SCRIPT).then(() => {
+    toast('Apps Script copied to clipboard!');
+  }).catch(() => {
+    document.getElementById('scriptContent').select();
+    toast('Select all and copy manually');
+  });
 }
 
 // ── Phone Formatting ──
@@ -1090,6 +1928,54 @@ document.getElementById('phone').addEventListener('input', function(e) {
     else if (val.length <= 6) val = '(' + val.slice(0,3) + ') ' + val.slice(3);
     else val = '(' + val.slice(0,3) + ') ' + val.slice(3,6) + '-' + val.slice(6,10);
   }
+  e.target.value = val;
+});
+
+// ── Address Helper ──
+document.getElementById('address').addEventListener('input', function(e) {
+  const val = e.target.value.trim();
+  const hint = document.getElementById('addressHint');
+
+  if (!val) {
+    hint.style.display = 'none';
+    return;
+  }
+
+  const hasStreet = /\d+\s+\w/.test(val);
+  const hasComma = val.includes(',');
+  const hasState = /\b(FL|Florida)\b/i.test(val);
+  const hasZip = /\b\d{5}\b/.test(val);
+
+  const missing = [];
+  if (!hasStreet) missing.push('street number');
+  if (!hasComma) missing.push('city');
+  if (!hasState) missing.push('state');
+  if (!hasZip) missing.push('zip code');
+
+  if (missing.length > 0 && val.length >= 3) {
+    hint.textContent = 'Add: ' + missing.join(', ');
+    hint.style.display = 'block';
+  } else if (missing.length === 0) {
+    hint.textContent = '\u2713 Looks good!';
+    hint.style.display = 'block';
+    hint.style.color = 'var(--success)';
+    setTimeout(() => { hint.style.color = 'var(--buttercup)'; }, 1500);
+  } else {
+    hint.style.display = 'none';
+  }
+});
+
+// ── Address Comma Helper: auto-add comma after city pattern ──
+document.getElementById('address').addEventListener('blur', function(e) {
+  let val = e.target.value.trim();
+  if (!val) return;
+
+  // Auto-capitalize state abbreviation if they wrote "fl" or "florida"
+  val = val.replace(/\b(fl)\b/gi, 'FL');
+  val = val.replace(/\bflorida\b/gi, 'FL');
+
+  // If they have a pattern like "123 Main St Tampa" without comma, suggest it
+  // But don't force it — just normalize FL
   e.target.value = val;
 });
 
