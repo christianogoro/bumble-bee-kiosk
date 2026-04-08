@@ -962,7 +962,7 @@
 
 <script>
 // ── Config ──
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzBjQCwwzkwB8-Y0Rz0MdldJXH6HL2bV-NypJIJaNad8oeskbMqAoTB-Re4ALDAhRpt2Q/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzwcl6U0L2rC-2ouQgdwRKjne7_4d0xYQsfohGIwy9bIaUGJRZagvdxHGUNJJewWCoGYQ/exec';
 const START_HOUR = 9;
 const END_HOUR = 21;
 const SLOT_DURATION = 3;
@@ -1181,6 +1181,10 @@ function buildDateGrid() {
 
 function isDateBlocked(dateStr) {
   if (blockedSlots.some(b => b.date === dateStr && !b.time)) return true;
+  // Block if a condo assessment exists on this date
+  const hasCondo = cloudBookings.some(b => b.date === dateStr && b.type === 'condo_assessment') ||
+                   bookings.some(b => b.date === dateStr && b.type === 'condo_assessment');
+  if (hasCondo) return true;
   // Auto-block day when 2+ appointments are booked
   const dayBookings = bookings.filter(b => b.date === dateStr).length +
                       cloudBookings.filter(b => b.date === dateStr).length;
@@ -1645,7 +1649,8 @@ function syncBookingToSheets(booking) {
     address: booking.address,
     products: booking.products || '',
     notes: booking.notes || '',
-    duration: '3 hours'
+    duration: '3 hours',
+    type: 'homeshow'
   };
 
   fetch(SHEETS_URL, {
