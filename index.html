@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="apple-touch-icon" href="bee-icon.png">
+<link rel="manifest" href="manifest.json">
 <title>Bumble Bee Blinds — Home Show</title>
 <style>
   :root {
@@ -761,7 +762,7 @@
 let leads = JSON.parse(localStorage.getItem('bbb_leads') || '[]');
 let selectedProducts = new Set();
 let promoCode = localStorage.getItem('bbb_promo') || 'BB185';
-let sheetsUrl = localStorage.getItem('bbb_sheets_url') || 'https://script.google.com/macros/s/AKfycbxFrtoaEuh0gCudYE6Gq5iq9bFCEBgjcHkzNCzU5ThSn2G9BhEVFYtsa1Qf3FAZ199_/exec';
+let sheetsUrl = localStorage.getItem('bbb_sheets_url') || 'https://script.google.com/macros/s/AKfycbwZ1HZNhJHFjk_JoKSN8d4-djYZXXONzCajCBuCwhze5k2ZHDawTpG9NT2Kb4aoKu0/exec';
 let currentLead = {};
 
 updateLeadCount();
