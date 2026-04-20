@@ -1201,8 +1201,45 @@ function isSlotBooked(dateStr, timeStr) {
          cloudBookings.some(b => b.date === dateStr && b.time === timeStr);
 }
 
+// Tracks the last set of remote (Apps-Script-provided) blocks we merged in,
+// so we can drop stale ones on re-sync without stomping user-local manual
+// blocks stored in localStorage.
+let _lastRemoteBlocks = [];
+
+// Fetch server-side availability blocks — farmers markets (hardcoded in
+// Apps Script), home shows (from unified.ics), and estimate appointments
+// (from unified.ics ServiceTitan events). Merges into the in-memory
+// blockedSlots so the date/time grids hide them. Safe to call repeatedly;
+// does NOT touch localStorage, so Krista's manual "Block Time" entries
+// persist untouched.
+function loadRemoteBlocks() {
+  if (!SHEETS_URL) return;
+  fetch(SHEETS_URL + '?action=blocked', { redirect: 'follow', credentials: 'omit' })
+    .then(r => r.ok ? r.json() : [])
+    .then(remote => {
+      if (!Array.isArray(remote)) return;
+      // Drop previously-merged remote entries so canceled estimates don't linger.
+      const priorKeys = new Set(_lastRemoteBlocks.map(b => b.date + '|' + (b.time || '')));
+      blockedSlots = blockedSlots.filter(b => !priorKeys.has(b.date + '|' + (b.time || '')));
+      // Merge fresh remote entries (dedupe against local).
+      const existing = new Set(blockedSlots.map(b => b.date + '|' + (b.time || '')));
+      for (const r of remote) {
+        const key = r.date + '|' + (r.time || '');
+        if (!existing.has(key)) {
+          blockedSlots.push({ date: r.date, time: r.time || null });
+          existing.add(key);
+        }
+      }
+      _lastRemoteBlocks = remote;
+      refreshDateGridIfVisible();
+      refreshTimeSlotsIfVisible();
+    })
+    .catch(err => console.warn('loadRemoteBlocks failed:', err && err.message));
+}
+
 function loadCloudBookings() {
   if (!SHEETS_URL || SHEETS_URL === 'BOOKING_SHEETS_URL_HERE') return;
+  loadRemoteBlocks();  // fire in parallel with the bookings sync
   updateSyncUI('syncing');
   fetch(SHEETS_URL + '?action=list', { redirect: 'follow', credentials: 'omit' })
     .then(r => r.text())
